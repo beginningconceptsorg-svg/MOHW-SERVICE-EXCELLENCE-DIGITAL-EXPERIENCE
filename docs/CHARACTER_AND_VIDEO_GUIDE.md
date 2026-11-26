@@ -44,4 +44,4 @@ For each episode produce a landscape master (16:9), a mobile cut (9:16), a poste
 
 Store approved welcome video as `assets/video/guide-welcome.mp4` and its poster at `assets/video/guide-welcome-poster.webp` only when assets are actually delivered. The existing `Hear her introduction` action provides a working, accessible fallback until then. A later, Ministry-approved generative conversational backend must introduce consent, privacy controls, data minimisation, document-scoped retrieval, auditability and escalation to authorised staff. Never embed AI API keys or staff data in this static frontend.
 
-**Workflow:** Develop on `render` → test visually and for accessibility → obtain content and media approvals → review PR → merge to `main`. A branch commit does not authorise public deployment.
+**Workflow:** Develop directly on `main` → test visually and for accessibility → obtain content and media approvals → release when authorised. A branch commit does not authorise public deployment.
