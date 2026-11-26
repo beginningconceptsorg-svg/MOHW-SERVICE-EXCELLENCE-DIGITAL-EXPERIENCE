@@ -6,7 +6,7 @@
 var S=window.STUDY, main=document.getElementById("main"), modalRoot=document.getElementById("modalRoot");
 if (!S || !main) return;
 var names={home:"Welcome",study:"The Study",results:"The Results",divisions:"By Division",voices:"What Staff Shared",action:"From Findings to Action",learn:"Learn & Improve",library:"Digital Report Library"};
-var state={route:"home",dimension:0,division:0,openedAction:1,actionFilter:"all",scene:0,answer:-1,pdfURL:null,coverURL:null,pdfName:"",pdfPage:1,installEvent:null,lastFocus:null,reading:false,voiceText:"",settings:{large:false,contrast:false,motion:false}};
+var state={route:"home",dimension:0,division:0,openedAction:1,actionFilter:"all",scene:0,answer:-1,pdfURL:null,coverURL:null,pdfName:"",pdfPage:1,installEvent:null,lastFocus:null,reading:false,voiceText:"",volume:1,muted:false,settings:{large:false,contrast:false,motion:false}};
 var scenarios=[
  {title:"A request needs follow-up",question:"A colleague calls for an update on a pending internal request. You cannot provide an immediate decision. What is the best response?",
  options:["Avoid answering until the request is resolved.","Acknowledge the request, explain the next step and give a realistic update time.","Refer them elsewhere without explaining why."],correct:1,explanation:"Acknowledgment and realistic next steps improve communication and responsiveness. The scenario is an educational example, not an event quoted from the report."},
@@ -199,7 +199,7 @@ function openShare(){
  var src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=12&data="+encodeURIComponent(url);
  modal("<div class='eyebrow'>SHARE THE EXPERIENCE</div><h2 id='dialogTitle'>Share the preview</h2><p>Share a link to this prototype when it is hosted at an authorised location. This does not mean the full internal report is publicly available.</p>"+
  "<input type='text' id='shareLink' readonly value='"+esc(url)+"' aria-label='Application link'><div class='form-actions'><button class='btn btn-accent' type='button' id='copyLink'>Copy link</button><button class='btn btn-outline' type='button' id='nativeShare'>Share on device</button></div>"+
- "<div style='text-align:center;margin:10px 0'><img src='"+esc(src)+"' alt='QR code pointing to the application link' width='210' height='210' loading='lazy' onerror='this.style.display=\"none\";this.nextElementSibling.textContent=\"QR preview requires an internet connection.\"'><p class='small'>QR generation uses an external service, sharing only this public link.</p></div>");
+ "<div style='text-align:center;margin:10px 0'><img src='"+esc(src)+"' alt='QR code pointing to the application link' width='210' height='210' loading='lazy' onerror='this.style.display=\"none\";this.nextElementSibling.textContent=\"QR preview requires an internet connection.\"'><p class='small'>QR generation uses an external service, sharing only this public link.</p><button class='btn btn-outline btn-sm' id='downloadQR' type='button'>Download QR image</button></div>");
 }
 function installInstructions(){
  var ios=/iphone|ipad|ipod/i.test(navigator.userAgent),isStandalone=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
@@ -219,9 +219,9 @@ function narrate(){
  modal("<div class='eyebrow'>WELCOME NARRATION / TRANSCRIPT</div><h2 id='dialogTitle'>Hear the introduction</h2>"+
  "<p>This uses your device's available text-to-speech voice. It is a concept demonstration, not a client-approved Jamaican voice or a lip-synchronised character video.</p>"+
  "<div class='dialog-results'><p>"+esc(msg)+"</p></div>"+
- "<div class='form-actions'><button class='btn btn-accent' id='speechPlay' type='button'>▷ Play</button><button class='btn btn-outline' id='speechPause' type='button'>Ⅱ Pause</button><button class='btn btn-outline' id='speechRestart' type='button'>↻ Restart</button><button class='btn btn-outline' id='speechStop' type='button'>■ Stop</button></div>");
+ "<div class='form-actions'><button class='btn btn-accent' id='speechPlay' type='button'>▷ Play</button><button class='btn btn-outline' id='speechPause' type='button'>Ⅱ Pause</button><button class='btn btn-outline' id='speechRestart' type='button'>↻ Restart</button><button class='btn btn-outline' id='speechStop' type='button'>■ Stop</button></div><label class='check-row' for='speechVolume'>Narration volume (applies when started or restarted) <input type='range' id='speechVolume' min='0' max='1' step='0.1' value='"+state.volume+"' aria-label='Narration volume'></label><button class='btn btn-outline btn-sm' type='button' id='speechMute'>"+(state.muted?"Unmute narration":"Mute narration")+"</button>");
 }
-function speak(){if(!("speechSynthesis" in window))return;stopSpeech();var msg=new SpeechSynthesisUtterance(welcomeSpeech());msg.lang="en-JM";msg.rate=.95;msg.pitch=1;msg.volume=1;msg.onend=function(){state.reading=false;};msg.onerror=function(){state.reading=false;};state.reading=true;window.speechSynthesis.speak(msg);}
+function speak(){if(!("speechSynthesis" in window))return;stopSpeech();var msg=new SpeechSynthesisUtterance(welcomeSpeech());msg.lang="en-JM";msg.rate=.95;msg.pitch=1;msg.volume=state.muted?0:state.volume;msg.onend=function(){state.reading=false;};msg.onerror=function(){state.reading=false;};state.reading=true;window.speechSynthesis.speak(msg);}
 async function extractEmbeddedCover(file){
  try {
   var bytes=new Uint8Array(await file.arrayBuffer());
@@ -298,7 +298,10 @@ modalRoot.addEventListener("click",function(e){
  if(b.id==="speechPause"){if("speechSynthesis" in window)window.speechSynthesis.pause();return;}
  if(b.id==="speechRestart"){speak();return;}
  if(b.id==="speechStop"){stopSpeech();return;}
+ if(b.id==="speechMute"){state.muted=!state.muted;stopSpeech();b.textContent=state.muted?"Unmute narration":"Mute narration";toast(state.muted?"Narration muted.":"Narration unmuted.");return;}
+ if(b.id==="downloadQR"){var src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=12&data="+encodeURIComponent(document.getElementById("shareLink").value);fetch(src).then(function(res){if(!res.ok)throw Error("QR image unavailable");return res.blob();}).then(function(blob){var u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="service-excellence-qr.png";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},1000);toast("QR image download requested.");}).catch(function(){toast("QR download requires an internet connection. Open or save the displayed image instead.");});return;}
 });
+modalRoot.addEventListener("input",function(e){if(e.target.id==="speechVolume")state.volume=Number(e.target.value);});
 modalRoot.addEventListener("submit",function(e){if(e.target.id==="askForm"){e.preventDefault();answerQuestion(document.getElementById("askInput").value);}});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){if(modalRoot.innerHTML){stopSpeech();closeModal();}else closeNav();}if(e.key==="Tab"&&modalRoot.innerHTML){var focusable=modalRoot.querySelectorAll("button:not([disabled]),input:not([disabled]),select:not([disabled]),a[href]");if(focusable.length){var first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}}});
 document.getElementById("menuToggle").addEventListener("click",function(){var n=document.getElementById("sideRail");n.classList.toggle("open");this.setAttribute("aria-expanded",n.classList.contains("open")?"true":"false");});
