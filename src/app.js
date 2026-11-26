@@ -49,7 +49,13 @@ function renderHome(){
   "<div class='overview-stat'><strong>05</strong><span>Service dimensions</span><small>GOJ minimum standards</small></div>"+
   "<div class='overview-stat'><strong>10</strong><span>Focus groups</span><small>63 staff members</small></div>"+
   "<div class='overview-stat'><strong>10</strong><span>Proposed workstreams</span><small>Appendix No. 5</small></div></div>"+
-  "<section class='guide-studio' aria-labelledby='guideStudioTitle'><div class='studio-portrait'><img src='./assets/guide-portrait.svg' alt='Service Excellence Guide, headset-wearing presenter from the study cover' loading='lazy'/><span class='studio-signal' aria-hidden='true'></span></div><div class='studio-copy'><div class='eyebrow'>MEET YOUR DIGITAL GUIDE</div><h2 id='guideStudioTitle'>A familiar face. A clearer conversation.</h2><p>Meet the character from the study cover, now the face of our interactive guide. Hear her introduction or find verified answers in the 2025 study.</p><div class='studio-actions'><button type='button' class='btn btn-accent' data-narrate='welcome'>▷ Hear her introduction</button><button type='button' class='btn btn-white' data-guide-open>Ask about the findings →</button></div><small>Future animated explainers will feature the same character following voice and media approvals. This introduction is a narrated prototype, not a lip-synchronised video.</small></div></section>"+
+  "<section class='guide-studio' aria-labelledby='guideStudioTitle'>"+
+  "<div class='studio-video'><video id='studioWelcomeVideo' class='studio-video-player' playsinline muted controls preload='metadata' poster='./assets/video/guide-welcome-poster.jpg' aria-label='Animated Service Excellence digital guide welcoming viewers'>"+
+  "<source src='./assets/video/guide-welcome.mp4' type='video/mp4'/>Your browser cannot play this video; please use a modern browser.</video><span class='studio-video-label' aria-hidden='true'>WELCOME VIDEO · 1080p</span></div>"+
+  "<div class='studio-copy'><div class='eyebrow'>MEET YOUR DIGITAL GUIDE</div><h2 id='guideStudioTitle'>A familiar face. A clearer conversation.</h2>"+
+  "<p>Meet the character from the study cover, now the face of our interactive guide. Watch her welcome video or find verified answers in the 2025 study.</p>"+
+  "<div class='studio-actions'><button type='button' class='btn btn-accent' data-video-play aria-controls='studioWelcomeVideo'>▶ Play her introduction</button><button type='button' class='btn btn-white' data-guide-open>Ask about the findings →</button></div>"+
+  "<small>This animated guide is part of the digital preview. The video plays silently by default; select Play her introduction to hear it. The original report remains the research source.</small></div></section>"+
   "<div class='section-head'><div><div class='eyebrow'>THREE WAYS TO EXPLORE</div><h2>From insight to impact.</h2></div><p>Go beyond a static report: explore the findings, hear the context, and examine proposals for improving internal service.</p></div>"+
   "<div class='discovery-grid'>"+
   "<a class='discovery-card one' href='#/results'><span class='eyebrow'>01 / EVIDENCE</span><h3>Discover what the data reveals.</h3><p>Interactive scores across five service dimensions, with original source references.</p><span class='arrow-go' aria-hidden='true'>↗</span></a>"+
@@ -150,12 +156,25 @@ function renderLibrary(){
  "<div class='attribution'><div><h4>Institutional publisher</h4><p class='small'>Ministry of Health and Wellness, Jamaica · Enabling Environment in Health and Client Services Division.</p><p class='small'>Principal Director's message: Dr. Kimorley Humphrey, JP.</p></div><div><h4>Research contributions</h4><p class='small'>Customer Service Branch; Research, Monitoring and Evaluation Branch; independent facilitation support. The original research team is fully acknowledged in the PDF on preliminary page vi (PDF page 7).</p></div></div>"+
  "<div class='credit-block'>Development preview built by <a href='https://beginningconcepts.org/' rel='noopener noreferrer' target='_blank'>Beginning Concepts</a>. Digital product concept subject to Ministry approval. The original report remains the authoritative research publication.</div></div>";
 }
+function initStudioVideo(){
+ var video=document.getElementById("studioWelcomeVideo");
+ if(!video)return;
+ video.addEventListener("volumechange",function(){if(!video.muted)video.loop=false;});
+ var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+ if(!reduce&&!state.settings.motion){
+  video.muted=true;
+  video.loop=true;
+  var playPromise=video.play();
+  if(playPromise&&playPromise.catch)playPromise.catch(function(){});
+ }
+}
 function render(){
  var route=(location.hash.match(/^#\/(home|study|results|divisions|voices|action|learn|library)/)||[])[1]||"home";
  var changed=route!==state.route; state.route=route;
  var views={home:renderHome,study:renderStudy,results:renderResults,divisions:renderDivisions,voices:renderVoices,action:renderActions,learn:renderLearn,library:renderLibrary};
  if(window.ServiceReader)window.ServiceReader.unmount();
  main.innerHTML=views[route]();
+ if(route==="home")initStudioVideo();
  if(route==="library"&&window.ServiceReader)window.ServiceReader.mount(document.getElementById("readerMount"),state.pdfPage);
  document.title=names[route]+" | Service Excellence in Action";
  Array.prototype.forEach.call(document.querySelectorAll("[data-route]"),function(a){var on=a.getAttribute("data-route")===route;a.classList.toggle("active",on);if(on){a.setAttribute("aria-current","page");}else{a.removeAttribute("aria-current");}});
@@ -274,6 +293,16 @@ function onMainClick(e){var b=e.target.closest("button");if(!b)return;
  if(b.hasAttribute("data-choice")){state.answer=Number(b.getAttribute("data-choice"));render();return;}
  if(b.id==="prevScene"){state.scene=Math.max(0,state.scene-1);state.answer=-1;render();return;}
  if(b.id==="nextScene"){state.scene=state.scene===scenarios.length-1?0:state.scene+1;state.answer=-1;render();return;}
+ if(b.hasAttribute("data-video-play")){
+  var video=document.getElementById("studioWelcomeVideo");
+  if(!video){toast("The introduction video is not available.");return;}
+  video.loop=false;video.muted=false;video.controls=true;
+  video.currentTime=0;
+  var playback=video.play();
+  if(playback&&playback.catch)playback.catch(function(){toast("Use the video controls to play the introduction.");});
+  b.textContent="↻ Replay her introduction";
+  return;
+ }
  if(b.hasAttribute("data-narrate")){narrate();return;}
  if(b.hasAttribute("data-guide-open")){openAsk();return;}
 }
