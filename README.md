@@ -5,14 +5,14 @@ An interactive development preview for the Ministry of Health and Wellness, Jama
 
 **Research source:** Internal Customer Satisfaction Study Report; survey conducted in 2025; original cover dated 2026; 74 PDF pages.
 
-**Status:** Working frontend prototype on branch **render**, derived from **feature/service-excellence-preview**. It is not yet an approved Ministry product, an official training programme, or a live implementation-monitoring system.
+**Status:** Working frontend prototype on branch **main**, the sole active development branch. It is not yet an approved Ministry product, an official training programme, or a live implementation-monitoring system.
 
 ## Open the prototype
 
 The project is entirely static and does not require an npm install, bundler or backend. Run a local HTTPS-compatible test server or serve the repository root through Render Static Site or GitHub Pages only after content distribution approval.
 
 To test locally:
-1. Download/clone the `render` branch.
+1. Download/clone the `main` branch.
 2. Start a local HTTP server (for example, Python 3: python -m http.server 4173).
 3. Visit http://localhost:4173/#/home.
 4. For PWA installation testing, use HTTPS or localhost and a supporting browser.
@@ -79,4 +79,4 @@ The headset-wearing woman on the study cover is the continuity character for the
 
 The production continuity guide and proposed first five episodes are documented in [Character and Video Guide](docs/CHARACTER_AND_VIDEO_GUIDE.md). The optimised portrait inside the app is not an HD source master. The full report and confidential participant details remain excluded from public assets.
 
-The `render` branch is intended for review; do not merge/deploy publicly until Ministry clearance.
+All development and commits take place directly on `main`. Earlier branches are historical snapshots only. Public deployment still requires Ministry clearance.
