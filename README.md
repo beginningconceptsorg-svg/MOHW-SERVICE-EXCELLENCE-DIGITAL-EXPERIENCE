@@ -9,7 +9,7 @@ An interactive development preview for the Ministry of Health and Wellness, Jama
 
 ## Open the prototype
 
-The project is entirely static and does not require an npm install, bundler or backend. Run a local HTTPS-compatible test server or serve the repository root through Render Static Site or GitHub Pages only after content distribution approval.
+The project is entirely static and does not require an npm install, bundler or backend. For private review, run a local test server or use Ministry-controlled hosting. Static hosting alone does not restrict access to an internal document.
 
 To test locally:
 1. Download/clone the `main` branch.
@@ -17,7 +17,7 @@ To test locally:
 3. Visit http://localhost:4173/#/home.
 4. For PWA installation testing, use HTTPS or localhost and a supporting browser.
 
-It has deliberately not been publicly deployed from this repository because the source publication is internal. Hosting requires Ministry clearance, including a decision about public access to the aggregate findings.
+This GitHub repository is public and may have a publicly accessible frontend preview through Pages. The internal PDF is deliberately excluded; hosting the original report requires a documented Ministry access decision and appropriate delivery controls.
 
 ## Eight experiences
 
