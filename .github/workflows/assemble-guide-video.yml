@@ -1,0 +1,28 @@
+name: Assemble uploaded guide video
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/video/.parts/**'
+permissions:
+  contents: write
+jobs:
+  assemble-video:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Reassemble the exact uploaded video
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat assets/video/.parts/chunk-*.bin > assets/video/guide-welcome.mp4
+          echo '14b13ce09887895a754740735ec055e0e749dcc888054d7cff2cf7be013154aa  assets/video/guide-welcome.mp4' | sha256sum -c -
+          rm -rf assets/video/.parts
+          rm .github/workflows/assemble-guide-video.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A assets/video .github/workflows/assemble-guide-video.yml
+          git commit -m "Add full HD animated welcome guide video"
+          git push origin HEAD:main
