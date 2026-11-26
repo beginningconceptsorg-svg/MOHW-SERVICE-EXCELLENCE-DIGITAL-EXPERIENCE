@@ -12,7 +12,7 @@
   <link rel="icon" href="./assets/mohw-official-icon-192.png" type="image/png" />
   <link rel="apple-touch-icon" href="./assets/mohw-official-icon-192.png" />
   <link rel="preload" as="image" href="./assets/guide-portrait.svg" />
-  <link rel="stylesheet" href="./src/styles.css" />
+  <link rel="stylesheet" href="./src/styles.css?v=5" />
   <link rel="stylesheet" href="./src/reader.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -26,8 +26,8 @@
   <a href="#main" class="skip-link">Skip to main content</a>
   <div class="app-shell">
     <aside class="side-rail" id="sideRail" aria-label="Primary navigation">
-      <a class="brand-lockup" href="#/home" aria-label="Service Excellence in Action home">
-        <span class="ministry-logo-panel"><img src="./assets/mohw-official-logo.png" alt="Ministry of Health and Wellness, Jamaica" /></span>
+      <a class="brand-lockup" style="flex-direction:column;align-items:stretch;gap:12px;padding-bottom:20px" href="#/home" aria-label="Service Excellence in Action home">
+        <span class="ministry-logo-panel" style="display:flex;justify-content:center;align-items:center;background:white;border-radius:10px;padding:8px;width:100%;flex:none"><img width="190" height="60" style="display:block;width:100%;max-width:190px;height:60px;object-fit:contain" src="./assets/mohw-official-logo.png" alt="Ministry of Health and Wellness, Jamaica" /></span>
         <span class="brand-word"><strong>Service<span>Excellence</span></strong><small>IN ACTION</small></span>
       </a>
       <div class="rail-eyebrow">THE DIGITAL PUBLICATION</div>
@@ -51,7 +51,7 @@
       <header class="topbar">
         <div class="topbar-left">
           <button class="mobile-menu" type="button" id="menuToggle" aria-controls="sideRail" aria-expanded="false" aria-label="Open navigation"><span></span><span></span><span></span></button>
-          <div class="institution-mark"><img class="institution-logo" src="./assets/mohw-official-logo.png" alt="Ministry of Health and Wellness, Jamaica" /><span class="institution-division"><strong>Service Excellence in Action</strong><small>JAMAICA · EEHCSD</small></span></div>
+          <div class="institution-mark"><img class="institution-logo" width="180" height="52" style="display:block;width:clamp(90px,13vw,180px);height:52px;max-width:100%;object-fit:contain;flex:none" src="./assets/mohw-official-logo.png" alt="Ministry of Health and Wellness, Jamaica" /></div>
         </div>
         <div class="top-actions">
           <span class="year-pill"><span class="year-signal"></span> 2025 STUDY</span>
@@ -62,7 +62,7 @@
       </header>
       <main id="main" tabindex="-1" aria-live="off"></main>
       <footer class="site-footer">
-        <img class="footer-ministry-logo" src="./assets/mohw-official-logo.png" alt="Ministry of Health and Wellness" loading="lazy" /><span>2025 research · 2026 report · Internal development preview — not a live performance dashboard</span>
+        <img class="footer-ministry-logo" width="116" height="38" style="width:116px;height:38px;object-fit:contain;flex:none" src="./assets/mohw-official-logo.png" alt="Ministry of Health and Wellness" loading="lazy" /><span>2025 research · 2026 report · Internal development preview — not a live performance dashboard</span>
         <a href="https://beginningconcepts.org/" target="_blank" rel="noopener noreferrer">Made by Beginning Concepts ↗</a>
       </footer>
     </div>
