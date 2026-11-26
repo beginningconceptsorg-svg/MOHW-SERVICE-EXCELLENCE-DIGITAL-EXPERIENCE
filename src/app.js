@@ -34,9 +34,10 @@ function pct(x){return Math.max(0,Math.min(100,Number(x)||0))+"%";}
 function source(page,text){return "<button type='button' class='source-link' data-page='"+page+"' aria-label='View original report, PDF page "+page+"'>"+esc(text||"Source: original report · PDF p. "+page)+" ↗</button>";}
 function header(label,title,subtitle){return "<header class='page-header'><div><div class='eyebrow'>"+esc(label)+"</div><h1>"+esc(title)+"</h1><p>"+esc(subtitle)+"</p></div><span class='source-chip'>◉ &nbsp; 2025 historical study</span></header>";}
 function progress(value,benchmark){return "<div class='progress-track' role='img' aria-label='"+value+" percent satisfaction"+(benchmark?", compared with an 85 percent benchmark":"")+"'><span style='width:"+pct(value)+"'></span>"+(benchmark?"<i class='benchmark' aria-hidden='true'></i>":"")+"</div>";}
-function animateGuide(){return state.coverURL?
- "<img class='guide-image authentic' src='"+esc(state.coverURL)+"' alt='Cover artwork extracted locally from the selected research PDF, showing the headset-wearing service representative' loading='eager'/>":
- "<img class='guide-image' src='./assets/guide.svg' alt='Provisional illustration of the report cover guide: a smiling Black woman with braids, headset, light blazer and welcoming arms' loading='eager'/>";}
+function animateGuide(){return "<img class='guide-image authentic' src='"+esc(state.coverURL||"./assets/guide-portrait.svg")+"' alt='Original Internal Customer Satisfaction Study cover artwork' loading='eager'/>";}
+function refreshWelcomeCover(){var im=document.querySelector(".hero-art .guide-image");if(im&&state.coverURL)im.src=state.coverURL;}
+async function loadWelcomeCover(){if(state.coverURL)return;try{var response=await fetch("./docs/Internal_CSAT_Report_2025_Final.pdf");if(!response.ok)return;if(await extractEmbeddedCover(await response.blob()))refreshWelcomeCover();}catch(_e){}}
+
 function reportYear(){return "Results reflect experiences studied in 2025; they are not current operational ratings.";}
 function renderHome(){
  return "<div class='page home-page'>"+
@@ -315,7 +316,7 @@ window.addEventListener("appinstalled",function(){state.installEvent=null;toast(
 window.addEventListener("hashchange",render);
 try{var pref=JSON.parse(localStorage.getItem("service-excellence-display")||"{}");["large","contrast","motion"].forEach(function(k){state.settings[k]=pref[k]===true;});}catch(_e){}
 window.addEventListener("service-reader-page",function(e){state.pdfPage=e.detail.page;document.querySelectorAll(".reader-toc .toc-button").forEach(function(b){b.classList.toggle("selected",Number(b.dataset.page)===state.pdfPage);});});
-window.addEventListener("service-report-opened",function(e){if(e.detail&&e.detail.file)extractEmbeddedCover(e.detail.file).catch(function(){});});
-applyPrefs();render();
+window.addEventListener("service-report-opened",function(e){if(e.detail&&e.detail.file)extractEmbeddedCover(e.detail.file).then(refreshWelcomeCover).catch(function(){});});
+applyPrefs();render();loadWelcomeCover();
 if("serviceWorker" in navigator && location.protocol==="https:")window.addEventListener("load",function(){navigator.serviceWorker.register("./sw.js").catch(function(){/* service worker optional in development */});});
 })();
