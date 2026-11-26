@@ -28,11 +28,11 @@ It has deliberately not been publicly deployed from this repository because the 
 5. **What Staff Shared:** four original qualitative themes, presented without sensitive verbatim focus-group disclosures.
 6. **From Findings to Action:** all ten original Appendix 5 workstreams, responsibilities, periods, activities and intended outcomes — no fabricated progress.
 7. **Learn & Improve:** accessible practice scenarios inspired by the research; no official certificates.
-8. **Digital Report Library:** offline-private, device-local loading of the supplied PDF, original page references, navigation, and a browser reader with download and full-view controls.
+8. **Digital Report Library:** WRHA-inspired built-in PDF.js canvas reader, source-page navigation, optional swish page-turn audio, double-page mode, search, zoom, read-aloud, full-screen and original-document viewing/download once publication delivery is authorised.
 
 ## Guide and original cover treatment
 
-The included animated SVG is a provisional visual study based on the cover's braided, headset-wearing Jamaican woman. On selecting an authorised copy of the original PDF, the app extracts the embedded 1024×1536 JPEG cover image locally from the PDF bytes and makes that original art available on the welcome screen. **The PDF never leaves the device.**
+The included animated SVG is a provisional visual study based on the cover's braided, headset-wearing Jamaican woman. When the original PDF is available from an authorised same-origin delivery path, the reader opens it automatically and extracts available cover art locally. **Visitors are not asked to upload a PDF.**
 
 The welcome uses optional device speech synthesis with play, pause, restart, mute and volume plus a written transcript. This is a functional narration demonstration, **not** final licensed Jamaican voice acting, video, or lip-synchronised animation. Final character identity and voice require approval.
 
@@ -41,7 +41,7 @@ The welcome uses optional device speech synthesis with play, pause, restart, mut
 - Valid manifest, installable 192/512 icons, standalone mode, cacheable app shell, offline lightweight content, update-aware service worker.
 - Browser install prompts where available; installation guidance elsewhere (notably iOS Safari).
 - Responsive layouts, keyboard navigation, focus outlines, labelled controls and data charts, contrast/text-size/reduced-motion preferences, speech transcript and no forced autoplay.
-- Local-only PDF file loading with no API upload, storage of confidential feedback, login imitation or fictitious analytics.
+- Automatic same-origin PDF delivery through the built-in reader, with no file-upload control, confidential feedback storage, login imitation or fictitious analytics.
 - Share button and downloadable QR image use a third-party QR service **only for the current public app URL**, not user or report contents. This service must undergo the host organisation's privacy review before production.
 
 ## Architecture
@@ -49,7 +49,8 @@ The welcome uses optional device speech synthesis with play, pause, restart, mut
 - index.html — semantic application shell
 - src/styles.css — design system and responsive layouts
 - src/data.js — historical study data and citation indexes; single source of truth
-- src/app.js — modular functions for eight experiences, state, data visualisations, interactive learning and document handling
+- src/app.js — routes, source references, historical findings, educational interactions and guide
+- src/reader.js, src/reader.css — PDF.js book viewer, optional sound, text-to-speech, mobile reading and accessible controls
 - assets/guide.svg — animated cover-inspired concept character
 - assets/icon.svg, icon-192.png, icon-512.png — application identity and installation icons
 - manifest.webmanifest, sw.js — PWA setup
@@ -61,9 +62,9 @@ Run automated checks: node qa/smoke.mjs
 
 ## Original publication not publicly hosted
 
-The supplied 74-page PDF, sensitive participant comments and original interview records are not stored in this public repository. The source-derived aggregate dashboard remains a development preview and must not be described as a present-day performance assessment. All recommendation indicators are **proposed future outcomes**.
+The supplied 74-page PDF, sensitive participant comments and original interview records are not stored in this public repository. The app requests the authorised report at `docs/Internal_CSAT_Report_2025_Final.pdf`; without an approved, access-controlled same-origin copy, the reader displays an access notice and disables document/download controls. It never displays a file chooser. The source-derived aggregate dashboard remains a development preview and must not be described as a present-day performance assessment. All recommendation indicators are **proposed future outcomes**.
 
-If the Ministry authorises public access, add the approved, redacted or original publication to a controlled location, configure a trusted report URL in the app, and verify its distribution permissions before showing unrestricted download links. If access is restricted, use authenticated staff-only hosting instead of public static delivery.
+If the Ministry authorises public access, deploy the cleared publication at `docs/Internal_CSAT_Report_2025_Final.pdf` in the authorised hosting environment. If access is restricted, protect both the application and that same-origin document behind authenticated staff-only hosting; a public GitHub Pages site alone cannot provide confidentiality. Never commit the internal PDF to this public repository without explicit clearance. If access is restricted, use authenticated staff-only hosting instead of public static delivery.
 
 See docs/SOURCE_VERIFICATION.md for identified discrepancies requiring the research team's review.
 
