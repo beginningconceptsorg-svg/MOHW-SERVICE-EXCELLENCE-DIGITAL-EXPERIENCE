@@ -44,7 +44,7 @@ function paperSound(reader,dir){
 class Reader {
  constructor(root,start){
   this.root=root;this.page=Math.max(1,Math.trunc(start)||1);this.count=0;this.pdf=null;this.task=null;this.raw=null;
-  this.epoch=0;this.speechEpoch=0;this.renderJobs=[];this.destroyed=false;this.reading=false;this.audio=null;
+  this.epoch=0;this.searchEpoch=0;this.speechEpoch=0;this.renderJobs=[];this.destroyed=false;this.reading=false;this.audio=null;
   let saved={};try{saved=JSON.parse(localStorage.getItem(PREF_KEY)||"{}");}catch(_){}
   this.sound=saved.sound!==false;this.spread=saved.spread!==false;this.zoom=saved.zoom||"fit";
   this.mount();
