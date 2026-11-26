@@ -41,15 +41,9 @@ async function loadWelcomeCover(){if(state.coverURL)return;try{var response=awai
 function reportYear(){return "Results reflect experiences studied in 2025; they are not current operational ratings.";}
 function renderHome(){
  return "<div class='page home-page'>"+
-  "<section class='hero' aria-label='Welcome to Service Excellence in Action'>"+
-  "<div class='hero-copy'><div class='eyebrow light'>MOHW · INTERACTIVE PUBLICATION · 2026</div>"+
-  "<h1>Better service <em>begins within.</em></h1>"+
-  "<p>A new way to explore the Ministry's Internal Customer Satisfaction Study — turning the voices of staff and the evidence of 2025 into a clearer path for service improvement.</p>"+
-  "<div class='hero-actions'><a class='btn btn-primary' href='#/results'>Explore the Findings <span aria-hidden='true'>↗</span></a>"+
-  "<button class='btn btn-outline' type='button' data-narrate='welcome'>▷ Hear the introduction</button></div>"+
-  "<div class='hero-fact'><strong>54%</strong><span>Overall internal CSAT<br/>reported in the 2025 study</span></div></div>"+
-  "<div class='hero-art'><div class='decor-orbit'></div><div class='chat-glow'></div><div class='hero-skyline'></div>"+animateGuide()+
-  "<div class='guide-caption'><img src='./assets/guide-portrait.svg' alt='' width='44' height='44'/><span><strong>Service Excellence Guide</strong><small>From the study cover</small></span></div></div></section>"+
+  "<section class='welcome-banner' aria-labelledby='welcomeTitle'>"+
+  "<img class='welcome-banner-image' src='./assets/service-excellence-banner.png' alt='Service Excellence in Action — interactive digital experience for the Internal Customer Satisfaction Study, featuring the Ministry’s digital guide' width='2048' height='682' fetchpriority='high' loading='eager'/>"+
+  "<div class='welcome-intro'><div class='welcome-copy'><div class='eyebrow light'>MOHW · INTERACTIVE PUBLICATION · 2026</div><h1 id='welcomeTitle'>Better service <em>begins within.</em></h1><p>Explore the Ministry’s Internal Customer Satisfaction Study — turning the voices of staff and the evidence of 2025 into a clearer path for service improvement.</p><div class='hero-actions'><a class='btn btn-primary' href='#/results'>Explore the Findings <span aria-hidden='true'>↗</span></a><button class='btn btn-outline' type='button' data-narrate='welcome'>▷ Hear the introduction</button></div></div><div class='welcome-score'><strong>54%</strong><span>Overall internal CSAT<br/>reported in the 2025 study</span></div></div></section>"+
   "<div class='overview-strip'>"+
   "<div class='overview-stat'><strong>229</strong><span>Survey respondents</span><small>Of 332 staff selected</small></div>"+
   "<div class='overview-stat'><strong>05</strong><span>Service dimensions</span><small>GOJ minimum standards</small></div>"+
@@ -317,6 +311,6 @@ window.addEventListener("hashchange",render);
 try{var pref=JSON.parse(localStorage.getItem("service-excellence-display")||"{}");["large","contrast","motion"].forEach(function(k){state.settings[k]=pref[k]===true;});}catch(_e){}
 window.addEventListener("service-reader-page",function(e){state.pdfPage=e.detail.page;document.querySelectorAll(".reader-toc .toc-button").forEach(function(b){b.classList.toggle("selected",Number(b.dataset.page)===state.pdfPage);});});
 window.addEventListener("service-report-opened",function(e){if(e.detail&&e.detail.file)extractEmbeddedCover(e.detail.file).then(refreshWelcomeCover).catch(function(){});});
-applyPrefs();render();loadWelcomeCover();
+applyPrefs();render();
 if("serviceWorker" in navigator && location.protocol==="https:")window.addEventListener("load",function(){navigator.serviceWorker.register("./sw.js").catch(function(){/* service worker optional in development */});});
 })();

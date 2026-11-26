@@ -214,3 +214,15 @@ body{font-size:16px;text-rendering:optimizeLegibility}
 @media(max-width:640px){.topbar{gap:7px;padding-inline:10px;min-height:72px}.topbar-left{gap:8px}.institution-mark{gap:0;min-width:0}.institution-logo{width:clamp(94px,30vw,158px);height:47px}.top-actions{gap:5px}.top-actions .icon-action,.mobile-menu{min-width:36px;min-height:40px}.year-pill{display:none}.install-btn{min-height:40px}.footer-ministry-logo{width:130px;height:42px}.hero-copy>p{font-size:.95rem}.page-header h1{font-size:clamp(1.9rem,9vw,2.5rem)}}
 @media(max-width:370px){.install-btn span:last-child{display:none}.install-btn{min-width:36px;justify-content:center}.institution-logo{width:100px}}
 @media(max-height:800px) and (min-width:901px){.side-rail{padding-top:18px}.brand-lockup{padding-bottom:17px}.ministry-logo-panel img{height:52px}.primary-nav{gap:2px}.primary-nav a{padding-block:8px}.rail-bottom{padding-top:12px}}
+
+/* Approved panoramic welcome banner. No stretching or cropping of supplied artwork. */
+.welcome-banner{margin:27px 0 28px;border-radius:25px;overflow:hidden;background:#092b4c;box-shadow:0 22px 55px rgba(7,55,91,.16)}
+.welcome-banner-image{display:block;width:100%;height:auto;aspect-ratio:2048/682;object-fit:contain;background:#0863aa}
+.welcome-intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(145px,auto);gap:30px;align-items:center;padding:clamp(22px,3vw,42px);background:linear-gradient(120deg,#092b4c,#0e5277);color:white}
+.welcome-copy h1{font-size:clamp(1.65rem,3.2vw,3.1rem);line-height:1.15;margin:10px 0 12px;color:white;letter-spacing:-.045em}
+.welcome-copy h1 em{font-style:normal;color:#76e0ee}
+.welcome-copy p{color:#d1eaf5;max-width:760px;font-size:1rem;line-height:1.6;margin:0 0 18px}
+.welcome-copy .hero-actions{margin:0}
+.welcome-score{border-left:1px solid #ffffff40;padding-left:28px;display:flex;flex-direction:column;gap:5px;color:#e6f9fc;font-size:.85rem}
+.welcome-score strong{font-family:Manrope,Arial,sans-serif;font-size:3.1rem;line-height:1;color:#fff}
+@media(max-width:760px){.welcome-banner{margin:15px 0 18px;border-radius:16px}.welcome-intro{grid-template-columns:1fr;gap:20px;padding:23px 19px}.welcome-score{border-left:0;border-top:1px solid #ffffff40;padding:15px 0 0;flex-direction:row;align-items:center;gap:15px}.welcome-score strong{font-size:2rem}.welcome-copy p{font-size:.91rem}.welcome-copy .hero-actions .btn{font-size:.8rem}}
