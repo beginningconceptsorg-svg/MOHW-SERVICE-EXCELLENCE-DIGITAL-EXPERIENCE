@@ -6,7 +6,7 @@
 var S=window.STUDY, main=document.getElementById("main"), modalRoot=document.getElementById("modalRoot");
 if (!S || !main) return;
 var names={home:"Welcome",study:"The Study",results:"The Results",divisions:"By Division",voices:"What Staff Shared",action:"From Findings to Action",learn:"Learn & Improve",library:"Digital Report Library"};
-var state={route:"home",dimension:0,division:0,openedAction:1,actionFilter:"all",scene:0,answer:-1,pdfURL:null,pdfName:"",pdfPage:1,installEvent:null,lastFocus:null,reading:false,voiceText:"",settings:{large:false,contrast:false,motion:false}};
+var state={route:"home",dimension:0,division:0,openedAction:1,actionFilter:"all",scene:0,answer:-1,pdfURL:null,coverURL:null,pdfName:"",pdfPage:1,installEvent:null,lastFocus:null,reading:false,voiceText:"",settings:{large:false,contrast:false,motion:false}};
 var scenarios=[
  {title:"A request needs follow-up",question:"A colleague calls for an update on a pending internal request. You cannot provide an immediate decision. What is the best response?",
  options:["Avoid answering until the request is resolved.","Acknowledge the request, explain the next step and give a realistic update time.","Refer them elsewhere without explaining why."],correct:1,explanation:"Acknowledgment and realistic next steps improve communication and responsiveness. The scenario is an educational example, not an event quoted from the report."},
@@ -34,7 +34,9 @@ function pct(x){return Math.max(0,Math.min(100,Number(x)||0))+"%";}
 function source(page,text){return "<button type='button' class='source-link' data-page='"+page+"' aria-label='View original report, PDF page "+page+"'>"+esc(text||"Source: original report · PDF p. "+page)+" ↗</button>";}
 function header(label,title,subtitle){return "<header class='page-header'><div><div class='eyebrow'>"+esc(label)+"</div><h1>"+esc(title)+"</h1><p>"+esc(subtitle)+"</p></div><span class='source-chip'>◉ &nbsp; 2025 historical study</span></header>";}
 function progress(value,benchmark){return "<div class='progress-track' role='img' aria-label='"+value+" percent satisfaction"+(benchmark?", compared with an 85 percent benchmark":"")+"'><span style='width:"+pct(value)+"'></span>"+(benchmark?"<i class='benchmark' aria-hidden='true'></i>":"")+"</div>";}
-function animateGuide(){return "<img class='guide-image' src='./assets/guide.svg' alt='Provisional illustration of the report cover guide: a smiling Black woman with braids, headset, light blazer and welcoming arms' loading='eager'/>";}
+function animateGuide(){return state.coverURL?
+ "<img class='guide-image authentic' src='"+esc(state.coverURL)+"' alt='Cover artwork extracted locally from the selected research PDF, showing the headset-wearing service representative' loading='eager'/>":
+ "<img class='guide-image' src='./assets/guide.svg' alt='Provisional illustration of the report cover guide: a smiling Black woman with braids, headset, light blazer and welcoming arms' loading='eager'/>";}
 function reportYear(){return "Results reflect experiences studied in 2025; they are not current operational ratings.";}
 function renderHome(){
  return "<div class='page home-page'>"+
@@ -220,7 +222,48 @@ function narrate(){
  "<div class='form-actions'><button class='btn btn-accent' id='speechPlay' type='button'>▷ Play</button><button class='btn btn-outline' id='speechPause' type='button'>Ⅱ Pause</button><button class='btn btn-outline' id='speechRestart' type='button'>↻ Restart</button><button class='btn btn-outline' id='speechStop' type='button'>■ Stop</button></div>");
 }
 function speak(){if(!("speechSynthesis" in window))return;stopSpeech();var msg=new SpeechSynthesisUtterance(welcomeSpeech());msg.lang="en-JM";msg.rate=.95;msg.pitch=1;msg.volume=1;msg.onend=function(){state.reading=false;};msg.onerror=function(){state.reading=false;};state.reading=true;window.speechSynthesis.speak(msg);}
-function loadPDF(file){if(!file)return;if(file.type!=="application/pdf" && !/\.pdf$/i.test(file.name)){toast("Please choose a PDF file.");return;}if(file.size>30*1024*1024){toast("This reader supports PDF files up to 30 MB.");return;}if(state.pdfURL)URL.revokeObjectURL(state.pdfURL);state.pdfURL=URL.createObjectURL(file);state.pdfName=file.name;state.pdfPage=1;location.hash="#/library";render();toast("PDF loaded in this browser session only. Nothing has been uploaded.");}
+async function extractEmbeddedCover(file){
+ try {
+  var bytes=new Uint8Array(await file.arrayBuffer());
+  for(var i=0;i<bytes.length-10;i++){
+   if(bytes[i]!==255||bytes[i+1]!==216||bytes[i+2]!==255)continue;
+   var p=i+2,w=0,h=0,limit=Math.min(bytes.length,i+5000);
+   while(p+10<limit){
+    if(bytes[p]!==255)break;
+    while(bytes[p]===255)p++;
+    var marker=bytes[p++];
+    if(marker===0xD9||marker===0xDA)break;
+    if(marker===0xD8||marker===1||marker>=0xD0&&marker<=0xD7)continue;
+    var len=(bytes[p]<<8)|bytes[p+1];
+    if(len<2||p+len>bytes.length)break;
+    if([0xC0,0xC1,0xC2,0xC3].indexOf(marker)>=0){
+     h=(bytes[p+3]<<8)|bytes[p+4];w=(bytes[p+5]<<8)|bytes[p+6];break;
+    }
+    p+=len;
+   }
+   if(w>=800&&h>=1000){
+    for(var j=p+10;j<Math.min(bytes.length,i+2500000);j++){
+     if(bytes[j]===255&&bytes[j+1]===217){
+      if(state.coverURL)URL.revokeObjectURL(state.coverURL);
+      state.coverURL=URL.createObjectURL(new Blob([bytes.subarray(i,j+2)],{type:"image/jpeg"}));
+      return true;
+     }
+    }
+   }
+  }
+ }catch(_e){return false;}
+ return false;
+}
+async function loadPDF(file){
+ if(!file)return;
+ if(file.type!=="application/pdf" && !/\.pdf$/i.test(file.name)){toast("Please choose a PDF file.");return;}
+ if(file.size>30*1024*1024){toast("This reader supports PDF files up to 30 MB.");return;}
+ if(state.pdfURL)URL.revokeObjectURL(state.pdfURL);
+ state.pdfURL=URL.createObjectURL(file);state.pdfName=file.name;state.pdfPage=1;
+ location.hash="#/library";render();
+ var found=await extractEmbeddedCover(file);
+ toast(found?"PDF loaded privately. Original embedded cover artwork also available in the welcome screen.":"PDF loaded in this browser session only. Nothing was uploaded.");
+}
 function applyPage(page){if(!state.pdfURL){sourceOpen(page);return;}state.pdfPage=Math.max(1,Math.min(74,page));render();}
 function choosePDF(){document.getElementById("pdfFileInput").click();}
 function downloadPDF(){if(!state.pdfURL)return;var a=document.createElement("a");a.href=state.pdfURL;a.download=state.pdfName||"Internal-CSAT-Report.pdf";document.body.appendChild(a);a.click();a.remove();}
