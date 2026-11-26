@@ -158,7 +158,7 @@ class Reader {
    for(let i=0;i<pages.length;i++){
     if(!still())return;
     const page=pages[i],view=page.getViewport({scale}),box=document.createElement("div"),canvas=document.createElement("canvas"),layer=document.createElement("div");
-    const pixelRatio=Math.min(window.devicePixelRatio||1,2.3,Math.sqrt(12500000/Math.max(1,view.width*view.height)));
+    const pixelRatio=Math.min(Math.max(1.5,window.devicePixelRatio||1),3,Math.sqrt(16000000/Math.max(1,view.width*view.height)));
     box.className="sr-page-surface";box.style.width=view.width+"px";box.style.height=view.height+"px";
     box.setAttribute("aria-label","Original PDF page "+nums[i]);box.setAttribute("role","group");
     canvas.width=Math.ceil(view.width*pixelRatio);canvas.height=Math.ceil(view.height*pixelRatio);
