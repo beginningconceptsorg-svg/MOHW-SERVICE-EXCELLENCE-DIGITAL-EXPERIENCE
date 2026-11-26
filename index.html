@@ -11,6 +11,7 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="./assets/icon-192.png" />
+  <link rel="preload" as="image" href="./assets/guide-portrait.svg" />
   <link rel="stylesheet" href="./src/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -64,7 +65,7 @@
       </footer>
     </div>
   </div>
-  <button class="guide-fab" id="guideFab" type="button" aria-label="Ask the Service Excellence Guide" title="Ask the Guide"><span aria-hidden="true">✧</span><span>Ask the Guide</span></button>
+  <button class="guide-fab" id="guideFab" type="button" aria-label="Ask the Service Excellence Guide about the 2025 study" title="Ask the Service Excellence Guide"><img src="./assets/guide-portrait.svg" alt="" width="44" height="44" aria-hidden="true"/><span class="guide-fab-copy"><strong>Ask the Guide</strong><small>2025 Study</small></span></button>
   <input type="file" id="pdfFileInput" accept=".pdf,application/pdf" hidden aria-label="Select the original 74-page PDF from your device" />
   <div id="modalRoot"></div>
   <div id="toast" role="status" aria-live="polite"></div>
