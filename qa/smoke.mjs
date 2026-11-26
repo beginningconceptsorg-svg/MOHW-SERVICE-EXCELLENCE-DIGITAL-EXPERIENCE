@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import vm from "node:vm";
 
-for(const name of ["src/app.js","src/data.js","sw.js"]){
+for(const name of ["src/app.js","src/data.js","src/reader.js","sw.js"]){
  new vm.Script(fs.readFileSync(name,"utf8"),{filename:name});
  console.log("Syntax passed:",name);
 }
@@ -46,5 +46,7 @@ assert(embedded.includes("srDownload"),"Missing download control");
 assert(embedded.includes("paperSound"),"Missing page-turn sound");
 assert(fs.existsSync("src/reader.css"),"Missing reader style sheet");
 assert(html.includes("reader.css")&&html.includes("reader.js"),"Reader assets not loaded");
-assert(!fs.readdirSync(".").some(x=>x.toLowerCase().endsWith(".pdf")),"Sensitive PDF must not be committed");
+const report=fs.readFileSync("docs/Internal_CSAT_Report_2025_Final.pdf");
+assert.equal(report.length,1975577,"Original report byte length mismatch");
+assert.equal(report.subarray(0,5).toString(),"%PDF-","Invalid original PDF");
 console.log("PASS: data, source references, reader, no-upload workflow, PWA and privacy checks");

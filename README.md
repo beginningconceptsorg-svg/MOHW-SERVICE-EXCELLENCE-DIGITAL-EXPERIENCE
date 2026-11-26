@@ -60,11 +60,9 @@ The welcome uses optional device speech synthesis with play, pause, restart, mut
 
 Run automated checks: node qa/smoke.mjs
 
-## Original publication not publicly hosted
+## Original publication embedded
 
-The supplied 74-page PDF, sensitive participant comments and original interview records are not stored in this public repository. The app requests the authorised report at `docs/Internal_CSAT_Report_2025_Final.pdf`; without an approved, access-controlled same-origin copy, the reader displays an access notice and disables document/download controls. It never displays a file chooser. The source-derived aggregate dashboard remains a development preview and must not be described as a present-day performance assessment. All recommendation indicators are **proposed future outcomes**.
-
-If the Ministry authorises public access, deploy the cleared publication at `docs/Internal_CSAT_Report_2025_Final.pdf` in the authorised hosting environment. If access is restricted, protect both the application and that same-origin document behind authenticated staff-only hosting; a public GitHub Pages site alone cannot provide confidentiality. Never commit the internal PDF to this public repository without explicit clearance. If access is restricted, use authenticated staff-only hosting instead of public static delivery.
+The original 74-page PDF supplied and authorised for public repository publication by the project owner is included at `docs/Internal_CSAT_Report_2025_Final.pdf`. The reader loads it automatically from the same origin; no file chooser is required. The application remains a development preview, and institutional launch approval remains separate from the project owner's publication instruction. No other source PDFs or interview records are added.
 
 See docs/SOURCE_VERIFICATION.md for identified discrepancies requiring the research team's review.
 
@@ -78,6 +76,6 @@ See docs/SOURCE_VERIFICATION.md for identified discrepancies requiring the resea
 
 The headset-wearing woman on the study cover is the continuity character for the application, conversational assistant and planned video series. Her supplied portrait is now integrated into the homepage, floating assistant, source-grounded conversation and browser-narrated introduction. **This is not yet a generative AI chatbot, lip-synchronised video or approved character voice.** All answers still come from verified, static report summaries, and questions are not sent to a server.
 
-The production continuity guide and proposed first five episodes are documented in [Character and Video Guide](docs/CHARACTER_AND_VIDEO_GUIDE.md). The optimised portrait inside the app is not an HD source master. The full report and confidential participant details remain excluded from public assets.
+The production continuity guide and proposed first five episodes are documented in [Character and Video Guide](docs/CHARACTER_AND_VIDEO_GUIDE.md). The optimised portrait inside the app is not an HD source master. The authorised original report is embedded; no additional confidential interview records are included.
 
-All development and commits take place directly on `main`. Earlier branches are historical snapshots only. Public deployment still requires Ministry clearance.
+All development and commits take place directly on `main`. Earlier branches are historical snapshots only. Official Ministry launch remains subject to institutional clearance.
