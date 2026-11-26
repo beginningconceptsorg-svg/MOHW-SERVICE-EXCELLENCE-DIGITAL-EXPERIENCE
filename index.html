@@ -13,11 +13,13 @@
   <link rel="apple-touch-icon" href="./assets/icon-192.png" />
   <link rel="preload" as="image" href="./assets/guide-portrait.svg" />
   <link rel="stylesheet" href="./src/styles.css" />
+  <link rel="stylesheet" href="./src/reader.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <title>Service Excellence in Action | MOHW Development Preview</title>
   <script src="./src/data.js" defer></script>
+  <script src="./src/reader.js" defer></script>
   <script src="./src/app.js" defer></script>
 </head>
 <body>
@@ -66,9 +68,8 @@
     </div>
   </div>
   <button class="guide-fab" id="guideFab" type="button" aria-label="Ask the Service Excellence Guide about the 2025 study" title="Ask the Service Excellence Guide"><img src="./assets/guide-portrait.svg" alt="" width="44" height="44" aria-hidden="true"/><span class="guide-fab-copy"><strong>Ask the Guide</strong><small>2025 Study</small></span></button>
-  <input type="file" id="pdfFileInput" accept=".pdf,application/pdf" hidden aria-label="Select the original 74-page PDF from your device" />
   <div id="modalRoot"></div>
   <div id="toast" role="status" aria-live="polite"></div>
-  <noscript><div class="noscript"><h1>JavaScript is required for this interactive experience.</h1><p>You can still open the original study PDF directly in a PDF reader when it has been provided through an authorised Ministry channel.</p></div></noscript>
+  <noscript><div class="noscript"><h1>JavaScript is required for this interactive experience.</h1><p>The source publication is available only through a Ministry-authorised delivery channel.</p></div></noscript>
 </body>
 </html>
