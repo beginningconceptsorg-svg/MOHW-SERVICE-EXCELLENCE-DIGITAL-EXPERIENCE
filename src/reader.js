@@ -183,7 +183,8 @@ class Reader {
   }catch(e){if(still()&&e.name!=="RenderingCancelledException")this.status("This page could not be drawn. Try changing the page size.");}
   finally{if(still())this.renderJobs=[];}
  }
- goTo(n){if(!this.pdf){this.page=Math.max(1,Math.trunc(n)||1);return;}const target=this.align(n),dir=Math.sign(target-this.page);this.stopSpeech(false);this.render(target,dir);}
+ unlockSound(){if(!this.sound)return;try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;this.audio=this.audio||new C();if(this.audio.state!=="running")this.audio.resume().catch(()=>{});}catch(_){}}
+ goTo(n){this.unlockSound();if(!this.pdf){this.page=Math.max(1,Math.trunc(n)||1);return;}const target=this.align(n),dir=Math.sign(target-this.page);this.stopSpeech(false);this.render(target,dir);}
  step(dir){if(!this.pdf)return;const nums=this.pages(),next=dir>0?nums[nums.length-1]+1:this.page-1;if(next<1||next>this.count)return;this.goTo(next);}
  async pageText(n){const p=await this.pdf.getPage(n),items=(await p.getTextContent()).items;return items.map(x=>(x.str||"")+(x.hasEOL?"\n":" ")).join("").trim();}
  async showText(){
@@ -258,7 +259,7 @@ class Reader {
   if(id==="srReadAll")this.read(true);
   if(id==="srPause"&&"speechSynthesis" in window){const x=window.speechSynthesis;x.paused?x.resume():x.pause();b.textContent=x.paused?"Resume":"Pause";}
   if(id==="srStop")this.stopSpeech();
-  if(id==="srSound"){this.sound=!this.sound;this.savePrefs();this.updatePrefs();}
+  if(id==="srSound"){this.sound=!this.sound;if(this.sound)this.unlockSound();this.savePrefs();this.updatePrefs();}
   if(id==="srSpread"){this.spread=!this.spread;this.savePrefs();this.updatePrefs();this.render(this.page,0);}
   if(id==="srFullscreen")this.fullscreen();
   if(id==="srDownload")this.download();
