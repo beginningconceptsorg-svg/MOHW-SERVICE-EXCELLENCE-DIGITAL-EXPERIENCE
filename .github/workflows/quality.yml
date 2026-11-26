@@ -1,7 +1,7 @@
 name: Service Excellence preview quality
 on:
   push:
-    branches: [feature/service-excellence-preview]
+    branches: [main]
   pull_request:
     branches: [main]
 jobs:
