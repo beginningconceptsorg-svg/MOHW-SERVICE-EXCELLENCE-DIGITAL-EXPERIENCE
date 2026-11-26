@@ -1,12 +1,12 @@
 /* Service Excellence in Action — interactive, aggregate-only prototype.
-   No original PDF or focus-group transcripts are uploaded or transmitted by this application.
+   Original PDF delivery is same-origin and permission-controlled; no device uploads are accepted.
    Browser-based narration is a provisional technology demo, NOT approved voice/video production. */
 (function () {
 "use strict";
 var S=window.STUDY, main=document.getElementById("main"), modalRoot=document.getElementById("modalRoot");
 if (!S || !main) return;
 var names={home:"Welcome",study:"The Study",results:"The Results",divisions:"By Division",voices:"What Staff Shared",action:"From Findings to Action",learn:"Learn & Improve",library:"Digital Report Library"};
-var state={route:"home",dimension:0,division:0,openedAction:1,actionFilter:"all",scene:0,answer:-1,pdfURL:null,coverURL:null,pdfName:"",pdfPage:1,installEvent:null,lastFocus:null,reading:false,voiceText:"",volume:1,muted:false,settings:{large:false,contrast:false,motion:false}};
+var state={route:"home",dimension:0,division:0,openedAction:1,actionFilter:"all",scene:0,answer:-1,coverURL:null,pdfPage:1,installEvent:null,lastFocus:null,reading:false,voiceText:"",volume:1,muted:false,settings:{large:false,contrast:false,motion:false}};
 var scenarios=[
  {title:"A request needs follow-up",question:"A colleague calls for an update on a pending internal request. You cannot provide an immediate decision. What is the best response?",
  options:["Avoid answering until the request is resolved.","Acknowledge the request, explain the next step and give a realistic update time.","Refer them elsewhere without explaining why."],correct:1,explanation:"Acknowledgment and realistic next steps improve communication and responsiveness. The scenario is an educational example, not an event quoted from the report."},
@@ -60,7 +60,7 @@ function renderHome(){
   "<a class='discovery-card one' href='#/results'><span class='eyebrow'>01 / EVIDENCE</span><h3>Discover what the data reveals.</h3><p>Interactive scores across five service dimensions, with original source references.</p><span class='arrow-go' aria-hidden='true'>↗</span></a>"+
   "<a class='discovery-card two' href='#/voices'><span class='eyebrow'>02 / PEOPLE</span><h3>Understand what staff shared.</h3><p>Four research themes, contextualised without exposing confidential participant accounts.</p><span class='arrow-go' aria-hidden='true'>↗</span></a>"+
   "<a class='discovery-card three' href='#/action'><span class='eyebrow'>03 / ACTION</span><h3>Explore the proposed way forward.</h3><p>Ten workstreams, accountable offices, intended periods and outcome indicators.</p><span class='arrow-go' aria-hidden='true'>↗</span></a></div>"+
-  "<div class='source-box'><strong>About this preview:</strong> The 2025 findings are historical. The original 74-page PDF is not publicly hosted here; authorised reviewers can load their own copy privately in the <a href='#/library'>Digital Report Library</a>. "+source(26,"View source page")+"</div>"+
+  "<div class='source-box'><strong>About this preview:</strong> The 2025 findings are historical. The <a href='#/library'>Digital Report Library</a> has a built-in book reader for the full publication, subject to authorised access. "+source(26,"View source page")+"</div>"+
   "</div>";
 }
 function renderStudy(){
@@ -147,16 +147,10 @@ function renderLearn(){
  "<div style='margin-top:auto'>"+source(52,"Research discussion · printed p. 39")+"<p class='small' style='margin-top:14px'>This experience is for reflection only. No official certification is issued.</p></div></aside></div></div>";
 }
 function renderLibrary(){
- var pdf=!!state.pdfURL;
- return "<div class='page'>"+header("07 / ORIGINAL SOURCE","The digital report library","Keep the complete 74-page research publication close at hand. In this public code preview, the internal PDF is loaded from your own device — never uploaded to a server.")+
- "<div class='reader-layout'><aside class='reader-toc'><h3>Report contents</h3><div class='mini-label' style='padding:0 12px 11px'>PDF PAGE / PRINTED PAGE</div>"+S.chapters.map(function(c){return "<button type='button' class='toc-button"+(pdf && state.pdfPage===c.page?" selected":"")+"' data-page='"+c.page+"'><span>"+esc(c.name)+"</span><small>"+c.page+" / "+esc(c.printed)+"</small></button>";}).join("")+"</aside>"+
- "<section class='reader-viewer' aria-label='Original research publication reader'><div class='reader-toolbar'><strong>"+(pdf?esc(state.pdfName):"74-page source · not hosted publicly")+"</strong><button type='button' id='choosePDF'>"+(pdf?"Replace PDF":"Load your PDF")+"</button>"+
- "<button type='button' id='readerPrev' "+(!pdf || state.pdfPage<=1?"disabled":"")+">←</button><span style='font-size:.8rem'>"+(pdf?"Page "+state.pdfPage+" / 74":"No file loaded")+"</span><button type='button' id='readerNext' "+(!pdf || state.pdfPage>=74?"disabled":"")+">→</button>"+
- "<button type='button' id='readerFull' "+(!pdf?"disabled":"")+">Full screen ↗</button><button type='button' id='readerDownload' "+(!pdf?"disabled":"")+">Download</button></div>"+
- (pdf?"<iframe class='reader-iframe' id='readerFrame' title='Original 74-page customer satisfaction study PDF' src='"+esc(state.pdfURL)+"#page="+state.pdfPage+"&toolbar=1'></iframe>":
- "<div class='reader-empty'><div class='doc-icon' aria-hidden='true'>▤</div><h3>Open the original publication</h3><p>Select the Internal Customer Satisfaction Study Report PDF from your device to view it privately, navigate by chapter and use your browser's built-in reader controls.</p><button class='btn btn-primary' id='choosePDFEmpty' type='button'>↑ Select original PDF</button><small>The file stays on your device and in this browser session. This project does not host or distribute it.</small></div>")+
- "</section></div>"+
- "<div class='source-box'><strong>Reading guidance:</strong> The original report includes numbered preliminary pages. PDF page 26 is printed report page 13; Appendix No. 5 begins at PDF page 70 / printed page 57. After loading a PDF, use the browser viewer's search and zoom controls where supported. Accessibility varies across built-in viewers; the HTML study sections provide additional structured reading.</div>"+
+ return "<div class='page'>"+header("07 / ORIGINAL SOURCE","The digital report library","The complete 74-page research publication belongs inside the experience. Read the original pages in a book-style viewer with swish sounds, zoom, search, narration and downloads where access is authorised.")+
+ "<div class='reader-layout'><aside class='reader-toc'><h3>Report contents</h3><div class='mini-label' style='padding:0 12px 11px'>PDF PAGE / PRINTED PAGE</div>"+S.chapters.map(function(ch){return "<button type='button' class='toc-button"+(state.pdfPage===ch.page?" selected":"")+"' data-page='"+ch.page+"'><span>"+esc(ch.name)+"</span><small>"+ch.page+" / "+esc(ch.printed)+"</small></button>";}).join("")+"</aside>"+
+ "<section class='reader-viewer' aria-label='Original research publication reader'><div id='readerMount'></div></section></div>"+
+ "<div class='source-box'><strong>Reading guidance:</strong> There is no PDF upload option. The original publication is opened automatically from an authorised same-origin source. PDF page 26 corresponds to printed page 13 and Appendix No. 5 begins at PDF page 70 / printed page 57. Reader tools provide narration, text search, page sound, full screen, view original and download when enabled.</div>"+
  "<div class='section-head'><div><div class='eyebrow'>ACKNOWLEDGEMENTS</div><h2>Preserving research authorship.</h2></div></div>"+
  "<div class='attribution'><div><h4>Institutional publisher</h4><p class='small'>Ministry of Health and Wellness, Jamaica · Enabling Environment in Health and Client Services Division.</p><p class='small'>Principal Director's message: Dr. Kimorley Humphrey, JP.</p></div><div><h4>Research contributions</h4><p class='small'>Customer Service Branch; Research, Monitoring and Evaluation Branch; independent facilitation support. The original research team is fully acknowledged in the PDF on preliminary page vi (PDF page 7).</p></div></div>"+
  "<div class='credit-block'>Development preview built by <a href='https://beginningconcepts.org/' rel='noopener noreferrer' target='_blank'>Beginning Concepts</a>. Digital product concept subject to Ministry approval. The original report remains the authoritative research publication.</div></div>";
@@ -165,7 +159,9 @@ function render(){
  var route=(location.hash.match(/^#\/(home|study|results|divisions|voices|action|learn|library)/)||[])[1]||"home";
  var changed=route!==state.route; state.route=route;
  var views={home:renderHome,study:renderStudy,results:renderResults,divisions:renderDivisions,voices:renderVoices,action:renderActions,learn:renderLearn,library:renderLibrary};
+ if(window.ServiceReader)window.ServiceReader.unmount();
  main.innerHTML=views[route]();
+ if(route==="library"&&window.ServiceReader)window.ServiceReader.mount(document.getElementById("readerMount"),state.pdfPage);
  document.title=names[route]+" | Service Excellence in Action";
  Array.prototype.forEach.call(document.querySelectorAll("[data-route]"),function(a){var on=a.getAttribute("data-route")===route;a.classList.toggle("active",on);if(on){a.setAttribute("aria-current","page");}else{a.removeAttribute("aria-current");}});
  if(changed){window.scrollTo({top:0,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});closeNav();}
@@ -174,7 +170,7 @@ function toast(text){var e=document.getElementById("toast");e.textContent=text;c
 function closeNav(){document.getElementById("sideRail").classList.remove("open");document.getElementById("menuToggle").setAttribute("aria-expanded","false");}
 function modal(markup){state.lastFocus=document.activeElement;modalRoot.innerHTML="<div class='modal-backdrop' id='modalBackdrop'><div class='modal' role='dialog' aria-modal='true' aria-labelledby='dialogTitle'><button type='button' class='modal-close' id='closeDialog' aria-label='Close dialog'>×</button>"+markup+"</div></div>";document.getElementById("closeDialog").focus();}
 function closeModal(){modalRoot.innerHTML="";if(state.lastFocus && state.lastFocus.focus)state.lastFocus.focus();}
-function sourceOpen(page){state.pdfPage=Math.min(74,Math.max(1,page||1));location.hash="#/library";render();if(!state.pdfURL)toast("To view the cited page, load your authorised copy of the report in the reader.");}
+function sourceOpen(page){state.pdfPage=Math.min(74,Math.max(1,page||1));if(state.route==="library"&&window.ServiceReader){window.ServiceReader.goTo(state.pdfPage);return;}location.hash="#/library";}
 var guideMessages=[];
 function guideLine(who,text,page){
  var guide=who==="guide";
@@ -274,19 +270,6 @@ async function extractEmbeddedCover(file){
  }catch(_e){return false;}
  return false;
 }
-async function loadPDF(file){
- if(!file)return;
- if(file.type!=="application/pdf" && !/\.pdf$/i.test(file.name)){toast("Please choose a PDF file.");return;}
- if(file.size>30*1024*1024){toast("This reader supports PDF files up to 30 MB.");return;}
- if(state.pdfURL)URL.revokeObjectURL(state.pdfURL);
- state.pdfURL=URL.createObjectURL(file);state.pdfName=file.name;state.pdfPage=1;
- location.hash="#/library";render();
- var found=await extractEmbeddedCover(file);
- toast(found?"PDF loaded privately. Original embedded cover artwork also available in the welcome screen.":"PDF loaded in this browser session only. Nothing was uploaded.");
-}
-function applyPage(page){if(!state.pdfURL){sourceOpen(page);return;}state.pdfPage=Math.max(1,Math.min(74,page));render();}
-function choosePDF(){document.getElementById("pdfFileInput").click();}
-function downloadPDF(){if(!state.pdfURL)return;var a=document.createElement("a");a.href=state.pdfURL;a.download=state.pdfName||"Internal-CSAT-Report.pdf";document.body.appendChild(a);a.click();a.remove();}
 function downloadAppQR(){/* QR download intentionally not offered until a local QR generator is included and approved. */}
 function onMainClick(e){var b=e.target.closest("button");if(!b)return;
  if(b.hasAttribute("data-page")){sourceOpen(Number(b.getAttribute("data-page")));return;}
@@ -298,11 +281,6 @@ function onMainClick(e){var b=e.target.closest("button");if(!b)return;
  if(b.id==="nextScene"){state.scene=state.scene===scenarios.length-1?0:state.scene+1;state.answer=-1;render();return;}
  if(b.hasAttribute("data-narrate")){narrate();return;}
  if(b.hasAttribute("data-guide-open")){openAsk();return;}
- if(b.id==="choosePDF"||b.id==="choosePDFEmpty"){choosePDF();return;}
- if(b.id==="readerPrev"){applyPage(state.pdfPage-1);return;}
- if(b.id==="readerNext"){applyPage(state.pdfPage+1);return;}
- if(b.id==="readerFull" && state.pdfURL){window.open(state.pdfURL+"#page="+state.pdfPage,"_blank","noopener");return;}
- if(b.id==="readerDownload"){downloadPDF();return;}
 }
 main.addEventListener("click",onMainClick);
 main.addEventListener("change",function(e){if(e.target.id==="filterAction"){state.actionFilter=e.target.value;state.openedAction=0;render();}});
@@ -332,11 +310,12 @@ document.getElementById("guideFab").addEventListener("click",openAsk);
 document.getElementById("accessBtn").addEventListener("click",openSettings);
 document.getElementById("shareBtn").addEventListener("click",openShare);
 document.getElementById("installBtn").addEventListener("click",function(){if(state.installEvent){var e=state.installEvent;state.installEvent=null;e.prompt();if(e.userChoice)e.userChoice.then(function(c){if(c.outcome==="accepted")toast("Installation request accepted. Complete any browser prompts.");else installInstructions();});}else installInstructions();});
-document.getElementById("pdfFileInput").addEventListener("change",function(){loadPDF(this.files[0]);this.value="";});
 window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();state.installEvent=e;});
 window.addEventListener("appinstalled",function(){state.installEvent=null;toast("The web application has been installed.");});
 window.addEventListener("hashchange",render);
 try{var pref=JSON.parse(localStorage.getItem("service-excellence-display")||"{}");["large","contrast","motion"].forEach(function(k){state.settings[k]=pref[k]===true;});}catch(_e){}
+window.addEventListener("service-reader-page",function(e){state.pdfPage=e.detail.page;document.querySelectorAll(".reader-toc .toc-button").forEach(function(b){b.classList.toggle("selected",Number(b.dataset.page)===state.pdfPage);});});
+window.addEventListener("service-report-opened",function(e){if(e.detail&&e.detail.file)extractEmbeddedCover(e.detail.file).catch(function(){});});
 applyPrefs();render();
 if("serviceWorker" in navigator && location.protocol==="https:")window.addEventListener("load",function(){navigator.serviceWorker.register("./sw.js").catch(function(){/* service worker optional in development */});});
 })();
