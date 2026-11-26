@@ -231,17 +231,17 @@ function installInstructions(){
 function welcomeSpeech(){
  return "Hello, and welcome to Service Excellence in Action. At the Ministry of Health and Wellness, good service begins with how we support one another. Our 2025 Internal Customer Satisfaction Study reports an overall satisfaction score of 54 percent. In this experience, you can explore the five service dimensions, understand the themes staff shared, and review proposals for service improvement. The recommendations are not yet verified achievements. Let us turn research into meaningful action.";
 }
-function stopSpeech(){if("speechSynthesis" in window)window.speechSynthesis.cancel();state.reading=false;}
+function stopSpeech(){if("speechSynthesis" in window)window.speechSynthesis.cancel();state.reading=false;var p=document.querySelector(".guide-narration-portrait");if(p)p.classList.remove("speaking");}
 function narrate(){
  if(!("speechSynthesis" in window)){toast("Narration is not supported in this browser. The introduction remains available as text.");return;}
  stopSpeech();
  var msg=welcomeSpeech();
- modal("<div class='eyebrow'>WELCOME NARRATION / TRANSCRIPT</div><h2 id='dialogTitle'>Hear the introduction</h2>"+
- "<p>This uses your device's available text-to-speech voice. It is a concept demonstration, not a client-approved Jamaican voice or a lip-synchronised character video.</p>"+
+ modal("<div class='guide-narration-head'><img src='./assets/guide-portrait.svg' class='guide-narration-portrait' alt='Service Excellence Guide portrait from the study cover'/><div><div class='eyebrow'>WELCOME NARRATION / TRANSCRIPT</div><h2 id='dialogTitle'>Hear your guide</h2><p>Meet the study cover character in a voice-assisted introduction.</p></div></div>"+
+ "<p>This uses your device's text-to-speech voice, not a client-approved Jamaican voice or a lip-synchronised character video.</p>"+
  "<div class='dialog-results'><p>"+esc(msg)+"</p></div>"+
  "<div class='form-actions'><button class='btn btn-accent' id='speechPlay' type='button'>▷ Play</button><button class='btn btn-outline' id='speechPause' type='button'>Ⅱ Pause</button><button class='btn btn-outline' id='speechRestart' type='button'>↻ Restart</button><button class='btn btn-outline' id='speechStop' type='button'>■ Stop</button></div><label class='check-row' for='speechVolume'>Narration volume (applies when started or restarted) <input type='range' id='speechVolume' min='0' max='1' step='0.1' value='"+state.volume+"' aria-label='Narration volume'></label><button class='btn btn-outline btn-sm' type='button' id='speechMute'>"+(state.muted?"Unmute narration":"Mute narration")+"</button>");
 }
-function speak(){if(!("speechSynthesis" in window))return;stopSpeech();var msg=new SpeechSynthesisUtterance(welcomeSpeech());msg.lang="en-JM";msg.rate=.95;msg.pitch=1;msg.volume=state.muted?0:state.volume;msg.onend=function(){state.reading=false;};msg.onerror=function(){state.reading=false;};state.reading=true;window.speechSynthesis.speak(msg);}
+function speak(){if(!("speechSynthesis" in window))return;stopSpeech();var msg=new SpeechSynthesisUtterance(welcomeSpeech());msg.lang="en-JM";msg.rate=.95;msg.pitch=1;msg.volume=state.muted?0:state.volume;var portrait=document.querySelector(".guide-narration-portrait");if(portrait)portrait.classList.add("speaking");msg.onend=stopSpeech;msg.onerror=stopSpeech;state.reading=true;window.speechSynthesis.speak(msg);}
 async function extractEmbeddedCover(file){
  try {
   var bytes=new Uint8Array(await file.arrayBuffer());
