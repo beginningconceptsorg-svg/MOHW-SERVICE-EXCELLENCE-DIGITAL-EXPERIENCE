@@ -1,0 +1,26 @@
+name: Service Excellence preview quality
+on:
+  push:
+    branches: [feature/service-excellence-preview]
+  pull_request:
+    branches: [main]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run tests
+        run: node qa/smoke.mjs
+      - name: Check for accidentally published PDF files
+        run: |
+          if find . -type f -iname '*.pdf' -not -path './.git/*' | grep -q .; then
+            echo "PDF detected. Publishing source report requires Ministry approval."
+            exit 1
+          fi
