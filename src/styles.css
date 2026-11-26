@@ -112,3 +112,7 @@ main{padding:0 15px 36px}.page-header{padding:30px 3px 21px;grid-template-column
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @media print{.side-rail,.topbar,.guide-fab,.site-footer,.btn,.action-toolbar{display:none!important}.app-shell{display:block}main{padding:0}.page{animation:none}}
+
+/* When a reviewer loads the authorised PDF, favour the actual embedded cover image. */
+.guide-image.authentic{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 89%;max-height:none;mask-image:linear-gradient(to bottom,transparent 0%,#000 15%,#000 94%);animation:guide-float 5.5s ease-in-out infinite;transform-origin:center bottom}
+@media(max-width:640px){.guide-image.authentic{height:345px;max-height:none;object-position:50% 97%}}
