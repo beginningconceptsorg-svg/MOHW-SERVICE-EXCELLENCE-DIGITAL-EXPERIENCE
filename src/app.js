@@ -43,19 +43,16 @@ function renderHome(){
  return "<div class='page home-page'>"+
   "<section class='welcome-banner' aria-labelledby='welcomeTitle'>"+
   "<img class='welcome-banner-image' src='./assets/service-excellence-banner.png' alt='Service Excellence in Action — interactive digital experience for the Internal Customer Satisfaction Study, featuring the Ministry’s digital guide' width='2048' height='682' fetchpriority='high' loading='eager'/>"+
-  "<div class='welcome-intro'><div class='welcome-copy'><div class='eyebrow light'>MOHW · INTERACTIVE PUBLICATION · 2026</div><h1 id='welcomeTitle'>Better service <em>begins within.</em></h1><p>Explore the Ministry’s Internal Customer Satisfaction Study — turning the voices of staff and the evidence of 2025 into a clearer path for service improvement.</p><div class='hero-actions'><a class='btn btn-primary' href='#/results'>Explore the Findings <span aria-hidden='true'>↗</span></a><button class='btn btn-outline' type='button' data-narrate='welcome'>▷ Hear the introduction</button></div></div><div class='welcome-score'><strong>54%</strong><span>Overall internal CSAT<br/>reported in the 2025 study</span></div></div></section>"+
+  "<div class='welcome-intro'><div class='welcome-copy'><div class='eyebrow light'>MOHW · INTERACTIVE PUBLICATION · 2026</div><h1 id='welcomeTitle'>Better service <em>begins within.</em></h1><p>Explore the Ministry’s Internal Customer Satisfaction Study — turning the voices of staff and the evidence of 2025 into a clearer path for service improvement.</p><div class='hero-actions'><a class='btn btn-primary' href='#/results'>Explore the Findings <span aria-hidden='true'>↗</span></a><button class='btn btn-outline' type='button' data-video-play aria-controls='studioWelcomeVideo'>▷ Watch the introduction</button></div></div><div class='welcome-score'><strong>54%</strong><span>Overall internal CSAT<br/>reported in the 2025 study</span></div></div></section>"+
   "<div class='overview-strip'>"+
   "<div class='overview-stat'><strong>229</strong><span>Survey respondents</span><small>Of 332 staff selected</small></div>"+
   "<div class='overview-stat'><strong>05</strong><span>Service dimensions</span><small>GOJ minimum standards</small></div>"+
   "<div class='overview-stat'><strong>10</strong><span>Focus groups</span><small>63 staff members</small></div>"+
   "<div class='overview-stat'><strong>10</strong><span>Proposed workstreams</span><small>Appendix No. 5</small></div></div>"+
-  "<section class='guide-studio' aria-labelledby='guideStudioTitle'>"+
-  "<div class='studio-video'><video id='studioWelcomeVideo' class='studio-video-player' playsinline muted controls preload='metadata' poster='./assets/video/guide-welcome-poster.jpg' aria-label='Animated Service Excellence digital guide welcoming viewers'>"+
-  "<source src='./assets/video/guide-welcome.mp4' type='video/mp4'/>Your browser cannot play this video; please use a modern browser.</video><span class='studio-video-label' aria-hidden='true'>WELCOME VIDEO · 1080p</span></div>"+
-  "<div class='studio-copy'><div class='eyebrow'>MEET YOUR DIGITAL GUIDE</div><h2 id='guideStudioTitle'>A familiar face. A clearer conversation.</h2>"+
-  "<p>Meet the character from the study cover, now the face of our interactive guide. Watch her welcome video or find verified answers in the 2025 study.</p>"+
-  "<div class='studio-actions'><button type='button' class='btn btn-accent' data-video-play aria-controls='studioWelcomeVideo'>▶ Play her introduction</button><button type='button' class='btn btn-white' data-guide-open>Ask about the findings →</button></div>"+
-  "<small>This animated guide is part of the digital preview. The video plays silently by default; select Play her introduction to hear it. The original report remains the research source.</small></div></section>"+
+  "<section class='guide-film' aria-label='Meet your digital guide'>"+
+  "<video id='studioWelcomeVideo' class='guide-film-player' playsinline muted controls preload='metadata' poster='./assets/video/guide-welcome-poster.jpg' aria-label='Animated Service Excellence digital guide welcoming viewers'>"+
+  "<source src='./assets/video/guide-welcome.mp4' type='video/mp4'/>Your browser cannot play this video.</video></section>"+
+  "<div class='guide-film-actions'><button type='button' class='btn btn-accent' data-video-play aria-controls='studioWelcomeVideo'>▶ Play with sound</button><button type='button' class='btn btn-white' data-guide-open>Ask about the findings →</button></div>"+
   "<div class='section-head'><div><div class='eyebrow'>THREE WAYS TO EXPLORE</div><h2>From insight to impact.</h2></div><p>Go beyond a static report: explore the findings, hear the context, and examine proposals for improving internal service.</p></div>"+
   "<div class='discovery-grid'>"+
   "<a class='discovery-card one' href='#/results'><span class='eyebrow'>01 / EVIDENCE</span><h3>Discover what the data reveals.</h3><p>Interactive scores across five service dimensions, with original source references.</p><span class='arrow-go' aria-hidden='true'>↗</span></a>"+
@@ -297,10 +294,11 @@ function onMainClick(e){var b=e.target.closest("button");if(!b)return;
   var video=document.getElementById("studioWelcomeVideo");
   if(!video){toast("The introduction video is not available.");return;}
   video.loop=false;video.muted=false;video.controls=true;
+  video.scrollIntoView({block:"center",behavior:"auto"});
   video.currentTime=0;
   var playback=video.play();
   if(playback&&playback.catch)playback.catch(function(){toast("Use the video controls to play the introduction.");});
-  b.textContent="↻ Replay her introduction";
+  b.textContent="↻ Replay with sound";
   return;
  }
  if(b.hasAttribute("data-narrate")){narrate();return;}

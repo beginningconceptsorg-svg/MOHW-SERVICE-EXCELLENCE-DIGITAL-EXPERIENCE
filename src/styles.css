@@ -228,21 +228,9 @@ body{font-size:16px;text-rendering:optimizeLegibility}
 @media(max-width:760px){.welcome-banner{margin:15px 0 18px;border-radius:16px}.welcome-intro{grid-template-columns:1fr;gap:20px;padding:23px 19px}.welcome-score{border-left:0;border-top:1px solid #ffffff40;padding:15px 0 0;flex-direction:row;align-items:center;gap:15px}.welcome-score strong{font-size:2rem}.welcome-copy p{font-size:.91rem}.welcome-copy .hero-actions .btn{font-size:.8rem}}
 
 
-/* Full-HD guide welcome video: preserve the complete 16:9 film on every screen. */
-.guide-studio{grid-template-columns:minmax(260px,36%) minmax(0,1fr);gap:clamp(22px,3.4vw,38px);padding:clamp(22px,2.7vw,34px)}
-.studio-video{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:19px;background:#10455e;box-shadow:0 0 0 4px rgba(255,255,255,.88),0 15px 36px rgba(9,62,88,.19)}
-.studio-video-player{display:block;width:100%;height:100%;aspect-ratio:16/9;object-fit:cover;background:#10455e}
-.studio-video-label{pointer-events:none;position:absolute;left:12px;top:12px;border-radius:100px;padding:6px 11px;background:rgba(5,41,62,.78);color:#fff;font-size:.65rem;font-weight:800;letter-spacing:.09em;line-height:1.1;backdrop-filter:blur(8px)}
-.studio-copy{min-width:0}
-.studio-copy h2{line-height:1.15;text-wrap:balance}
-@media(max-width:900px){
- .guide-studio{display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:23px}
- .studio-video{max-width:680px;align-self:center}
- .studio-actions{justify-content:flex-start}
-}
-@media(max-width:640px){
- .guide-studio{padding:20px 18px;text-align:left;gap:20px}
- .studio-video{border-radius:15px}
- .studio-video-label{font-size:.58rem;top:9px;left:9px;padding:5px 9px}
- .studio-copy h2{font-size:clamp(1.5rem,6vw,2.1rem)}
-}
+/* Standalone cinematic introduction: no card, banner, frame or overlay. */
+.guide-film{display:block;width:100%;max-width:none;margin:32px 0 0;padding:0;border:0;background:none;box-shadow:none}
+.guide-film-player{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;background:#000;border:0;border-radius:0;box-shadow:none}
+.guide-film-actions{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0 40px}
+.guide-film-actions .btn-white{border:1px solid #c5e5ea}
+@media(max-width:640px){.guide-film{margin-top:22px}.guide-film-actions{margin:14px 0 30px;gap:8px}.guide-film-actions .btn{flex:1 1 145px}}
