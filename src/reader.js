@@ -65,7 +65,7 @@ class Reader {
    '<button type="button" id="srSpread">Two-page book</button><button type="button" id="srSound">Sound on</button></div>',
    '<div class="sr-toolgroup"><label for="srSearch">Find text in report</label><input id="srSearch" type="search" placeholder="Search all pages" aria-label="Find text in report"><button type="button" id="srFind">Find next</button></div>',
    '<div class="sr-toolgroup"><button type="button" id="srReadAll">Read from this page</button><button type="button" id="srPause">Pause</button><button type="button" id="srStop">Stop audio</button><button type="button" id="srText">Show page text</button></div>',
-   '<div class="sr-toolgroup"><button type="button" id="srPrint">Print report</button><a id="srOriginal" href="#" target="_blank" rel="noopener noreferrer">View original PDF</a><button type="button" id="srDownload">↓ Download PDF</button></div>',
+   '<div class="sr-toolgroup"><button type="button" id="srPrint">Print report</button><a id="srOriginal" aria-disabled="true" tabindex="-1" target="_blank" rel="noopener noreferrer">View original PDF</a><button type="button" id="srDownload">↓ Download PDF</button></div>',
    '</div></details></div>',
    '<div class="sr-stage" id="srStage" tabindex="0" aria-label="Report page canvas; use left and right arrow keys to turn pages">',
    '<div class="sr-loading" id="srLoading" role="status"><div class="sr-loader" aria-hidden="true"></div><strong>Preparing the original report</strong><span>Preserving each page, chart, photograph and illustration.</span></div>',
@@ -110,7 +110,7 @@ class Reader {
    const bytes=new Uint8Array(buffer);
    if(bytes.length<8||String.fromCharCode(...bytes.slice(0,5))!=="%PDF-")throw Error("The configured report response is not a PDF.");
    this.raw=URL.createObjectURL(new Blob([bytes],{type:"application/pdf"}));
-   this.el("srOriginal").href=this.raw;
+   this.el("srOriginal").href=this.raw;this.el("srOriginal").setAttribute("aria-disabled","false");this.el("srOriginal").tabIndex=0;
    window.dispatchEvent(new CustomEvent("service-report-opened",{detail:{file:new Blob([bytes],{type:"application/pdf"})}}));
    this.lib=await getLib();if(this.destroyed)return;
    this.task=this.lib.getDocument({data:new Uint8Array(bytes)});
@@ -213,7 +213,7 @@ class Reader {
   try{
    for(let n=this.page;n<=end;n++){
     if(token!==this.speechEpoch)return;
-    if(n!==this.page){this.render(n,0);await new Promise(r=>setTimeout(r,120));}
+    if(n!==this.page)await this.render(n,0);
     const content=await this.pageText(n);if(token!==this.speechEpoch)return;
     if(!content){this.status("Page "+n+" contains no extractable text.");continue;}
     this.status("Reading aloud: page "+n+" of "+this.count+".");
