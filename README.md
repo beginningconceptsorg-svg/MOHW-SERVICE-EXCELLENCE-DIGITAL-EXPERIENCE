@@ -5,14 +5,14 @@ An interactive development preview for the Ministry of Health and Wellness, Jama
 
 **Research source:** Internal Customer Satisfaction Study Report; survey conducted in 2025; original cover dated 2026; 74 PDF pages.
 
-**Status:** Working frontend prototype on branch **feature/service-excellence-preview**. It is not yet an approved Ministry product, an official training programme, or a live implementation-monitoring system.
+**Status:** Working frontend prototype on branch **render**, derived from **feature/service-excellence-preview**. It is not yet an approved Ministry product, an official training programme, or a live implementation-monitoring system.
 
 ## Open the prototype
 
 The project is entirely static and does not require an npm install, bundler or backend. Run a local HTTPS-compatible test server or serve the repository root through Render Static Site or GitHub Pages only after content distribution approval.
 
 To test locally:
-1. Download/clone the preview branch.
+1. Download/clone the `render` branch.
 2. Start a local HTTP server (for example, Python 3: python -m http.server 4173).
 3. Visit http://localhost:4173/#/home.
 4. For PWA installation testing, use HTTPS or localhost and a supporting browser.
@@ -72,3 +72,11 @@ See docs/SOURCE_VERIFICATION.md for identified discrepancies requiring the resea
 **Prior to external launch:** Ministry approval of the name, artwork, voice, research content, branding, acknowledgements, QR integration and privacy arrangements; reconciliation of research data; screen-reader, phone, tablet and desktop validation; PWA installation testing on real devices; publication access controls; final licensed lip-synchronised welcome video; appropriate monitoring/logging.
 
 **Development credit:** [Beginning Concepts](https://beginningconcepts.org/) — original research remains attributable to the Ministry and its research team.
+
+## Character-led guide (November 2026)
+
+The headset-wearing woman on the study cover is the continuity character for the application, conversational assistant and planned video series. Her supplied portrait is now integrated into the homepage, floating assistant, source-grounded conversation and browser-narrated introduction. **This is not yet a generative AI chatbot, lip-synchronised video or approved character voice.** All answers still come from verified, static report summaries, and questions are not sent to a server.
+
+The production continuity guide and proposed first five episodes are documented in [Character and Video Guide](docs/CHARACTER_AND_VIDEO_GUIDE.md). The optimised portrait inside the app is not an HD source master. The full report and confidential participant details remain excluded from public assets.
+
+The `render` branch is intended for review; do not merge/deploy publicly until Ministry clearance.
