@@ -176,6 +176,11 @@ function render(){
  var views={dashboard:renderCommand,home:renderHome,study:renderStudy,results:renderResults,divisions:renderDivisions,voices:renderVoices,action:renderActions,learn:renderLearn,library:renderLibrary};
  if(window.ServiceReader)window.ServiceReader.unmount();
  main.innerHTML=sectionSwitch(route)+views[route]();
+ main.dataset.chapter=route;
+ var sequence=["home","dashboard","study","results","divisions","voices","action","learn","library"], labels=["Welcome","Overview","Research methods","Service dimensions","Division comparisons","Staff experiences","Improvement roadmap","Practice and learn","Original publication"], position=sequence.indexOf(route);
+ if(route!=="library"){var next=sequence[position+1];var journey=document.createElement("nav");journey.className="chapter-end";journey.setAttribute("aria-label","Continue reading");journey.innerHTML="<div><small>CONTINUE THE EXPERIENCE / "+String(position+2).padStart(2,"0")+"</small><strong>"+labels[position+1]+"</strong></div><a href='#/"+next+"' aria-label='Continue to "+labels[position+1]+"'>→</a>";main.appendChild(journey);}
+ if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window && !document.body.classList.contains("no-motion")){var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add("chapter-visible");observer.unobserve(e.target);}});},{threshold:.08});main.querySelectorAll(".page > section,.page > .two-col,.page > .mosaic,.page > .action-list,.chapter-end").forEach(function(el){if(el.getBoundingClientRect().top>window.innerHeight){el.classList.add("chapter-reveal");observer.observe(el);}});}
+
  if(route==="home")initStudioVideo();
  if(route==="library"&&window.ServiceReader)window.ServiceReader.mount(document.getElementById("readerMount"),state.pdfPage);
  document.title=names[route]+" | Service Excellence in Action";
