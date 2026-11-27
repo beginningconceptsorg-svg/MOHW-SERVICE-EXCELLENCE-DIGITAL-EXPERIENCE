@@ -17,17 +17,6 @@ var scenarios=[
  {title:"A recurring delay",question:"A service request is frequently delayed across several units. What is a constructive improvement?",
  options:["Document the hand-off steps and recommend clearer service timelines and escalation routes.","Assume the delays cannot change.","Publicly identify individual employees as responsible."],correct:0,explanation:"Process mapping, service-level standards and accountability mechanisms are among the report's proposed approaches."}
 ];
-var questions=[
- {keys:["overall","54","satisfaction score"],answer:"The 2025 study reports an overall internal customer satisfaction score of 54%. This is a historical baseline, not current or live performance.",page:26},
- {keys:["lowest","weakest","payment","cost"],answer:"Cost and Payment Processes had the lowest service-dimension score at 44%, followed by Timeliness/Responsiveness at 48%.",page:26},
- {keys:["five","dimension","communication","access","quality"],answer:"The five dimensions and their 2025 CSAT scores were: Communication 59%; Access and Facilities 55%; Quality and Reliability 59%; Timeliness/Responsiveness 48%; and Cost and Payment Processes 44%.",page:26},
- {keys:["survey","sample","response","participant"],answer:"The survey sampling frame was 766 staff; 332 were selected, and 229 returned surveys. The report states a response rate of 68%, which is flagged for confirmation because 229 divided by 332 is approximately 69%.",page:19},
- {keys:["group","qualitative","staff","theme"],answer:"Ten focus groups involved 63 staff. Four overarching themes were service challenges; lack of standardised processes; inadequate communication; and supervisory or management challenges.",page:35},
- {keys:["division","executive","finance","rank"],answer:"The report's Table 2 gives Executive Management 71% and Finance and Accounts 28%. The eight divisional results reflect the 2025 study only, not current staff or departmental performance.",page:27},
- {keys:["recommend","improve","action","plan"],answer:"Appendix No. 5 outlines ten proposed workstreams, including internal service standards, training, feedback, document management, workflows, leadership, staff welfare, communication, and facilities. These are recommendations and future targets, not completed activities.",page:70},
- {keys:["director","humphrey","principal"],answer:"The report contains a message from Dr. Kimorley Humphrey, JP, Principal Director of the Enabling Environment in Health and Client Services Division, describing the research as a call to action.",page:5},
- {keys:["benchmark","85","target","65"],answer:"The report cites 85% as the Government of Jamaica's general service-excellence benchmark. Appendix No. 5 separately proposes improving internal CSAT from 54% to at least 65% within two survey cycles.",page:70}
-];
 function esc(x){return String(x==null?"":x).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 function score(x){return "<strong>"+Number(x)+"%</strong>";}
 function pct(x){return Math.max(0,Math.min(100,Number(x)||0))+"%";}
@@ -196,37 +185,44 @@ function closeNav(){document.getElementById("sideRail").classList.remove("open")
 function modal(markup){state.lastFocus=document.activeElement;modalRoot.innerHTML="<div class='modal-backdrop' id='modalBackdrop'><div class='modal' role='dialog' aria-modal='true' aria-labelledby='dialogTitle'><button type='button' class='modal-close' id='closeDialog' aria-label='Close dialog'>×</button>"+markup+"</div></div>";document.getElementById("closeDialog").focus();}
 function closeModal(){modalRoot.innerHTML="";if(state.lastFocus && state.lastFocus.focus)state.lastFocus.focus();}
 function sourceOpen(page){state.pdfPage=Math.min(74,Math.max(1,page||1));if(state.route==="library"&&window.ServiceReader){window.ServiceReader.goTo(state.pdfPage);return;}location.hash="#/library";}
-var guideMessages=[];
-function guideLine(who,text,page){
- var guide=who==="guide";
- return "<div class='guide-line "+(guide?"from-guide":"from-visitor")+"'>"+
-  (guide?"<img src='./assets/guide-portrait.svg' alt='' class='guide-line-avatar' loading='lazy'/>":"")+
-  "<div class='guide-bubble'><p>"+esc(text)+"</p>"+(guide&&page?source(page,"Verify in report · PDF p. "+page):"")+"</div></div>";
+var guideMessages=[],guideContext=null,guidePending=false,guideGeneration=0;
+function guideFace(){return "<span class='guide-face' aria-hidden='true'><img src='./assets/video/guide-welcome-poster.jpg' alt=''/></span>";}
+function guideLine(m){
+ var guide=m.who==="guide";
+ return "<div class='guide-line "+(guide?"from-guide":"from-visitor")+"'>"+(guide?guideFace():"")+"<div class='guide-bubble'><p>"+esc(m.text)+"</p>"+(guide?(m.pages||[]).map(function(p){return source(p,"Open report · PDF p. "+p);}).join(" ")+(m.id?"<div class='guide-tools'><button type='button' data-guide-speak='"+m.id+"'>▶ Listen</button><button type='button' data-guide-copy='"+m.id+"'>Copy</button></div>":""):"")+"</div></div>";
 }
 function renderGuideConversation(){
  var root=document.getElementById("guideConversation");if(!root)return;
- var html=guideLine("guide","Hello! I'm your Service Excellence Guide. I can help you explore verified findings, proposed actions and source pages from the Ministry's 2025 Internal Customer Satisfaction Study.",null);
- guideMessages.forEach(function(m){html+=guideLine(m.who,m.text,m.page);});
- root.innerHTML=html;root.scrollTop=root.scrollHeight;
+ var welcome={who:"guide",text:"Hello! I'm your Service Excellence Guide. What would you like to know about the 2025 study? Ask me about a result, a division, or what we can do to improve service."};
+ root.innerHTML=guideLine(welcome)+guideMessages.map(guideLine).join("")+(guidePending?"<div class='guide-thinking' role='status'>Looking through the report…</div>":"");root.scrollTop=root.scrollHeight;
+ var chips=document.getElementById("guideSuggestions"),last=guideMessages[guideMessages.length-1];
+ var choices=last&&last.next&&last.next.length?last.next:["Give me the big picture","Compare divisions","What should improve?"];
+ if(chips)chips.innerHTML=choices.map(function(q){return "<button type='button' data-question='"+esc(q)+"'>"+esc(q)+"</button>";}).join("");
+ var send=document.getElementById("guideSend");if(send)send.disabled=guidePending;
 }
 function openAsk(){
- modal("<div class='guide-dialog-head'><img src='./assets/guide-portrait.svg' alt='The Service Excellence Guide from the study cover'/><div><div class='eyebrow'>YOUR STUDY COMPANION</div><h2 id='dialogTitle'>Ask the Service Excellence Guide</h2><span class='guide-status'><i aria-hidden='true'></i> Report-grounded preview</span></div></div>"+
-  "<div id='guideConversation' class='guide-conversation' role='log' aria-label='Guide conversation' aria-live='polite' aria-relevant='additions text'></div>"+
-  "<div class='suggested-questions guide-suggestions' aria-label='Suggested questions'><button type='button' data-question='What was the overall score?'>2025 overall score</button><button type='button' data-question='Which area scored lowest?'>Lowest-rated area</button><button type='button' data-question='What are the recommendations?'>Recommended actions</button></div>"+
-  "<form id='askForm' class='guide-compose'><label for='askInput' class='mini-label'>YOUR QUESTION</label><div class='guide-compose-row'><input id='askInput' type='text' required maxlength='300' autocomplete='off' placeholder='Ask about the 2025 report…' aria-label='Ask the study guide'/><button class='btn btn-accent' type='submit'>Send <span aria-hidden='true'>➤</span></button></div></form>"+
-  "<p class='guide-privacy'>Answers come from pre-verified report summaries, not a live generative AI model. Do not enter names, private employment details or confidential information. Questions stay in this browser session.</p>");
+ modal("<div class='guide-dialog-head'>"+guideFace()+"<div><div class='eyebrow'>YOUR STUDY COMPANION</div><h2 id='dialogTitle'>Service Excellence Guide</h2><span class='guide-status'><i aria-hidden='true'></i> 2025 report companion</span></div></div>"+
+ "<div id='guideConversation' class='guide-conversation' role='log' aria-label='Guide conversation' aria-live='polite'></div>"+
+ "<div id='guideSuggestions' class='guide-suggestions' aria-label='Suggested follow-up questions'></div>"+
+ "<form id='askForm' class='guide-compose'><label for='askInput' class='mini-label'>ASK ME ANYTHING ABOUT THE STUDY</label><div class='guide-compose-row'><input id='askInput' type='text' required maxlength='600' autocomplete='off' placeholder='Type your question…'/><button id='guideSend' class='btn btn-accent' type='submit' aria-label='Send question'>Send</button></div></form>"+
+ "<div class='guide-tools'><button type='button' id='guideClear'>New conversation</button><button type='button' id='guideStop'>Stop audio</button></div><p class='guide-privacy'>Local report search and verified study data, not a live AI model. Please do not enter personal or confidential information. Chats are not saved or sent to a server.</p>");
  renderGuideConversation();
 }
-function answerQuestion(q){
- q=String(q||"").trim();if(!q)return;
- var x=q.toLowerCase(),best=null,bestN=0;
- questions.forEach(function(item){var n=item.keys.reduce(function(a,k){return a+(x.indexOf(k)>=0?1:0);},0);if(n>bestN){best=item;bestN=n;}});
- var response=best?best.answer:"I cannot confirm an answer to that from the verified information currently included in this preview. Please consult the original report or an authorised research-team member.";
- guideMessages.push({who:"visitor",text:q,page:null},{who:"guide",text:response,page:best?best.page:null});
- if(guideMessages.length>24)guideMessages.splice(0,2);
- renderGuideConversation();
+async function answerQuestion(q){
+ q=String(q||"").trim().slice(0,600);if(!q||guidePending)return;
+ var epoch=++guideGeneration;guideMessages.push({who:"visitor",text:q});
  var input=document.getElementById("askInput");if(input){input.value="";input.focus();}
+ guidePending=true;renderGuideConversation();
+ var reply;
+ try{reply=window.ServiceGuide.answer(q,guideContext)||await window.ServiceGuide.search(q,guideContext);}
+ catch(e){reply={text:"I couldn't retrieve that answer. Please try again or open the original report.",pages:[1]};}
+ if(epoch!==guideGeneration)return;
+ guidePending=false;guideContext=reply.context||guideContext;
+ guideMessages.push({who:"guide",text:reply.text,pages:reply.pages,next:reply.next,id:String(epoch)});
+ if(guideMessages.length>40)guideMessages.splice(0,2);
+ renderGuideConversation();
 }
+function guideSpeak(id){var m=guideMessages.find(function(x){return x.id===id;});if(!m)return;if(!("speechSynthesis" in window)){toast("Read aloud is not available on this device.");return;}stopSpeech();var u=new SpeechSynthesisUtterance(m.text);var voices=window.speechSynthesis.getVoices();u.voice=voices.find(function(v){return /^en-JM/i.test(v.lang);})||voices.find(function(v){return /^en-GB/i.test(v.lang);})||voices.find(function(v){return /^en/i.test(v.lang);})||null;u.lang=u.voice?u.voice.lang:"en-JM";u.rate=.95;window.speechSynthesis.speak(u);}
 function openSettings(){
  modal("<div class='eyebrow'>DISPLAY PREFERENCES</div><h2 id='dialogTitle'>Make this experience yours</h2><p>These settings affect the prototype interface on this device. They are not a substitute for accessibility testing.</p>"+
  "<label class='check-row'>Larger text<input type='checkbox' id='largeToggle' "+(state.settings.large?"checked":"")+"></label>"+
@@ -327,6 +323,10 @@ modalRoot.addEventListener("click",function(e){
  if(e.target.id==="modalBackdrop" || b && (b.id==="closeDialog"||b.hasAttribute("data-close"))){stopSpeech();closeModal();return;}
  if(!b)return;
  if(b.hasAttribute("data-page")){stopSpeech();closeModal();sourceOpen(Number(b.getAttribute("data-page")));return;}
+ if(b.id==="guideClear"){guideGeneration++;guidePending=false;guideMessages=[];guideContext=null;stopSpeech();renderGuideConversation();document.getElementById("askInput").focus();return;}
+ if(b.id==="guideStop"){stopSpeech();return;}
+ if(b.hasAttribute("data-guide-speak")){guideSpeak(b.getAttribute("data-guide-speak"));return;}
+ if(b.hasAttribute("data-guide-copy")){var m=guideMessages.find(function(x){return x.id===b.getAttribute("data-guide-copy");});if(m&&navigator.clipboard){navigator.clipboard.writeText(m.text).then(function(){toast("Answer copied.");}).catch(function(){toast("Select the answer text to copy it.");});}else toast("Select the answer text to copy it.");return;}
  if(b.hasAttribute("data-question")){answerQuestion(b.getAttribute("data-question"));return;}
  if(b.id==="savePrefs"){state.settings.large=document.getElementById("largeToggle").checked;state.settings.contrast=document.getElementById("contrastToggle").checked;state.settings.motion=document.getElementById("motionToggle").checked;applyPrefs();try{localStorage.setItem("service-excellence-display",JSON.stringify(state.settings));}catch(_e){}closeModal();toast("Your display preferences were saved on this device.");return;}
  if(b.id==="copyLink"){var u=document.getElementById("shareLink").value;if(navigator.clipboard && navigator.clipboard.writeText){navigator.clipboard.writeText(u).then(function(){toast("Application link copied.");}).catch(function(){toast("Use the selected link to copy it.");});}else{document.getElementById("shareLink").select();toast("Select the link and copy it.");}return;}
