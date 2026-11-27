@@ -5,7 +5,7 @@
 "use strict";
 var S=window.STUDY, main=document.getElementById("main"), modalRoot=document.getElementById("modalRoot");
 if (!S || !main) return;
-var names={home:"Welcome",study:"The Study",results:"The Results",divisions:"By Division",voices:"What Staff Shared",action:"From Findings to Action",learn:"Learn & Improve",library:"Digital Report Library"};
+var names={dashboard:"Executive Dashboard",home:"Welcome",study:"The Study",results:"The Results",divisions:"By Division",voices:"What Staff Shared",action:"From Findings to Action",learn:"Learn & Improve",library:"Digital Report Library"};
 var state={route:"home",dimension:0,division:0,openedAction:1,actionFilter:"all",scene:0,answer:-1,coverURL:null,pdfPage:1,installEvent:null,lastFocus:null,reading:false,voiceText:"",volume:1,muted:false,settings:{large:false,contrast:false,motion:false}};
 var scenarios=[
  {title:"A request needs follow-up",question:"A colleague calls for an update on a pending internal request. You cannot provide an immediate decision. What is the best response?",
@@ -50,6 +50,9 @@ function renderDashboard(){
  "<div class='intel-grid'><article class='intel-card'><h3>Explore the five dimensions</h3><small>Tap a bar to reveal its interpretation.</small>"+S.dimensions.map(function(x,i){return "<button class='intel-bar' data-intel-dim='"+i+"' aria-pressed='"+(i===state.dimension)+"'><span>"+esc(x.name)+"</span><b>"+x.score+"%</b><span class='intel-track'><i style='width:"+x.score+"%;background:"+colors[i]+"'></i></span></button>";}).join("")+"<div class='intel-detail' aria-live='polite'><h3>"+esc(d.name)+" · "+d.score+"%</h3><p>"+esc(d.detail)+"</p><p>"+esc(d.insight)+"</p>"+source(26,"View original evidence")+"</div></article>"+
  "<article class='intel-card'><h3>Compare Ministry divisions</h3><label for='intelDivision'>Choose a division</label><select id='intelDivision'>"+S.divisions.map(function(x,i){return "<option value='"+i+"' "+(i===state.division?"selected":"")+">"+esc(x.name)+" · "+x.score+"%</option>";}).join("")+"</select><div class='intel-detail' aria-live='polite'><h3>"+esc(v.name)+" · "+v.score+"%</h3><small>"+v.agree+" satisfied ratings / "+v.ratings+" ratings</small>"+S.dimensions.map(function(x,i){return "<div style='margin:10px 0'><span>"+esc(x.short)+"</span> <b style='float:right'>"+v.dimensions[i]+"%</b><div class='intel-track'><i style='width:"+v.dimensions[i]+"%;background:"+colors[i]+"'></i></div></div>";}).join("")+source(28,"View original table")+"</div><a href='#/divisions'>Explore all divisions ↗</a></article></div>"+
  "<div class='intel-links'><a class='btn btn-accent' href='#/voices'>Staff experiences ↗</a><a class='btn btn-outline' href='#/action'>Improvement roadmap ↗</a><a class='btn btn-outline' href='#/library'>Read original report ↗</a></div><p class='small'>Historical research findings, not live operational performance. Report-defined targets are not achieved results. Data reconciliation notes remain in the detailed study views.</p></section>";
+}
+function renderCommand(){
+return "<div class='page'><style>.command-hero{background:linear-gradient(125deg,#081e38,#126e75);color:white;padding:clamp(24px,5vw,60px);border-radius:24px}.command-hero h1{color:white;font-size:clamp(36px,6vw,70px);line-height:1.05}.command-hero strong{font-size:clamp(70px,12vw,130px);color:#b7f5df;line-height:1}.matrix-wrap{overflow:auto;background:white;padding:16px;border-radius:18px}.matrix{min-width:650px;width:100%;border-spacing:5px}.matrix th{text-align:left;font-size:12px;color:#17364a}.matrix button{width:100%;padding:14px 6px;border:0;border-radius:8px;color:#12344a;font-weight:800;cursor:pointer}.roadmap{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.roadmap details{background:white;color:#17364a;border:1px solid #dce5eb;padding:18px;border-radius:14px}.roadmap summary{cursor:pointer;font-weight:800}</style><section class='command-hero'><div class='eyebrow light'>SERVICE EXCELLENCE OBSERVATORY / 2025</div><h1>From evidence to better service.</h1><strong>"+S.overall.score+"%</strong><p>Overall internal satisfaction · historical study baseline</p><a class='btn btn-white' href='#/home'>Watch the welcome ↗</a></section>"+renderDashboard()+"<section class='chart-wrap'><h2>Service performance matrix</h2><p>Select any cell to explore the underlying evidence. Scroll sideways on smaller screens.</p><div class='matrix-wrap'><table class='matrix'><thead><tr><th>Division</th>"+S.dimensions.map(function(d){return "<th>"+esc(d.short)+"</th>";}).join("")+"</tr></thead><tbody>"+S.divisions.map(function(v,i){return "<tr><th>"+esc(v.name)+"</th>"+v.dimensions.map(function(n,j){return "<td><button data-matrix='"+i+","+j+"' style='background:"+(n<40?"#f6c8ba":n<50?"#f7dfb3":n<60?"#e9ebc4":n<70?"#bce4d8":"#80c9bc")+"'>"+n+"%</button></td>";}).join("")+"</tr>";}).join("")+"</tbody></table></div><p class='small'>Colour bands are editorial, not official performance categories. "+source(28,"Original Table 3")+"</p></section><section class='section-head'><h2>Ten pathways to improvement</h2></section><div class='roadmap'>"+S.actions.map(function(a){return "<details><summary>"+a.id+". "+esc(a.title)+"</summary><p>"+esc(a.gap)+"</p><p><strong>Responsible office:</strong> "+esc(a.owner)+"</p><p>"+esc(a.period)+"</p><ul>"+a.indicators.map(function(x){return "<li>"+esc(x)+"</li>";}).join("")+"</ul>"+source(a.page,"Original action plan")+"</details>";}).join("")+"</div></div>";
 }
 function renderHome(){
  return "<div class='page home-page'>"+
@@ -179,9 +182,9 @@ function initStudioVideo(){
  }
 }
 function render(){
- var route=(location.hash.match(/^#\/(home|study|results|divisions|voices|action|learn|library)/)||[])[1]||"home";
+ var route=(location.hash.match(/^#\/(dashboard|home|study|results|divisions|voices|action|learn|library)/)||[])[1]||"dashboard";
  var changed=route!==state.route; state.route=route;
- var views={home:renderHome,study:renderStudy,results:renderResults,divisions:renderDivisions,voices:renderVoices,action:renderActions,learn:renderLearn,library:renderLibrary};
+ var views={dashboard:renderCommand,home:renderHome,study:renderStudy,results:renderResults,divisions:renderDivisions,voices:renderVoices,action:renderActions,learn:renderLearn,library:renderLibrary};
  if(window.ServiceReader)window.ServiceReader.unmount();
  main.innerHTML=views[route]();
  if(route==="home")initStudioVideo();
@@ -297,6 +300,7 @@ async function extractEmbeddedCover(file){
 function downloadAppQR(){/* QR download intentionally not offered until a local QR generator is included and approved. */}
 function onMainClick(e){var b=e.target.closest("button");if(!b)return;
  if(b.hasAttribute("data-page")){sourceOpen(Number(b.getAttribute("data-page")));return;}
+ if(b.hasAttribute("data-matrix")){var ij=b.dataset.matrix.split(",").map(Number),v=S.divisions[ij[0]],d=S.dimensions[ij[1]];modal("<h2 id='dialogTitle'>"+esc(v.name)+"</h2><h3>"+esc(d.name)+" · "+v.dimensions[ij[1]]+"%</h3><p>"+esc(d.detail)+"</p><p>Ministry-wide dimension score: "+d.score+"%. Division overall score: "+v.score+"%.</p>"+source(28,"Verify in original report"));return;}
  if(b.hasAttribute("data-intel-dim")){state.dimension=Number(b.dataset.intelDim);var old=main.querySelector(".intel");old.outerHTML=renderDashboard();main.querySelector("[data-intel-dim='"+state.dimension+"']").focus({preventScroll:true});return;}
  if(b.hasAttribute("data-dim")){state.dimension=Number(b.getAttribute("data-dim"));render();return;}
  if(b.hasAttribute("data-division")){state.division=Number(b.getAttribute("data-division"));render();return;}
