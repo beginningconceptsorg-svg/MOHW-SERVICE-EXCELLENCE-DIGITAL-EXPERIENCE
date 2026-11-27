@@ -66,3 +66,10 @@ assert(g.answer("Open PDF page 70").pages.includes(70));
 assert.equal(g.answer("unrelated obscure question"),null);
 assert(html.includes("guide-welcome-poster.jpg")&&html.includes("guide.js?v=17"));
 console.log("PASS: guide grounding, comparisons, follow-ups, source links and portrait launcher");
+
+const finance=g.answer("Tell me about Finance and Accounts");
+assert(g.answer("Which dimension was lowest?",finance.context).text.includes("25%"));
+const payment=g.answer("What was the payment score?");
+assert(g.answer("What can we do about it?",payment.context).pages.includes(72));
+const summary=g.answer("Give me the big picture");
+assert(g.answer("Why was it so low?",summary.context).text.includes("does not establish a causal effect"));
