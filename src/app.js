@@ -189,7 +189,7 @@ var guideMessages=[],guideContext=null,guidePending=false,guideGeneration=0;
 function guideFace(){return "<span class='guide-face' aria-hidden='true'><img src='./assets/video/guide-welcome-poster.jpg' alt=''/></span>";}
 function guideLine(m){
  var guide=m.who==="guide";
- return "<div class='guide-line "+(guide?"from-guide":"from-visitor")+"'>"+(guide?guideFace():"")+"<div class='guide-bubble'><p>"+esc(m.text)+"</p>"+(guide?(m.pages||[]).map(function(p){return source(p,"Open report · PDF p. "+p);}).join(" ")+(m.id?"<div class='guide-tools'><button type='button' data-guide-speak='"+m.id+"'>▶ Listen</button><button type='button' data-guide-copy='"+m.id+"'>Copy</button></div>":""):"")+"</div></div>";
+ return "<div class='guide-line "+(guide?"from-guide":"from-visitor")+"'>"+(guide?guideFace():"")+"<div class='guide-bubble'>"+(guide&&m.kind&&m.kind!=="Conversation"?"<div class='guide-evidence-kind'>"+esc(m.kind)+"</div>":"")+"<p>"+esc(m.text)+"</p>"+(guide?(m.pages||[]).map(function(p){return source(p,"Open report · PDF p. "+p);}).join(" ")+(m.id?"<div class='guide-tools'><button type='button' data-guide-speak='"+m.id+"'>▶ Listen</button><button type='button' data-guide-copy='"+m.id+"'>Copy</button></div>":""):"")+"</div></div>";
 }
 function renderGuideConversation(){
  var root=document.getElementById("guideConversation");if(!root)return;
@@ -205,7 +205,7 @@ function openAsk(){
  "<div id='guideConversation' class='guide-conversation' role='log' aria-label='Guide conversation' aria-live='polite'></div>"+
  "<div id='guideSuggestions' class='guide-suggestions' aria-label='Suggested follow-up questions'></div>"+
  "<form id='askForm' class='guide-compose'><label for='askInput' class='mini-label'>ASK ME ANYTHING ABOUT THE STUDY</label><div class='guide-compose-row'><input id='askInput' type='text' required maxlength='600' autocomplete='off' placeholder='Type your question…'/><button id='guideSend' class='btn btn-accent' type='submit' aria-label='Send question'>Send</button></div></form>"+
- "<div class='guide-tools'><button type='button' id='guideClear'>New conversation</button><button type='button' id='guideStop'>Stop audio</button></div><p class='guide-privacy'>Local report search and verified study data, not a live AI model. Please do not enter personal or confidential information. Chats are not saved or sent to a server.</p>");
+ "<div class='guide-tools'><button type='button' id='guideClear'>New conversation</button><button type='button' id='guideStop'>Stop audio</button></div><p class='guide-privacy'>Report-based analysis and local PDF search. Not a live AI model. Please avoid personal or confidential information. Conversations stay in this browser session.</p>");
  renderGuideConversation();
 }
 async function answerQuestion(q){
@@ -218,7 +218,7 @@ async function answerQuestion(q){
  catch(e){reply={text:"I couldn't retrieve that answer. Please try again or open the original report.",pages:[1]};}
  if(epoch!==guideGeneration)return;
  guidePending=false;guideContext=reply.context||guideContext;
- guideMessages.push({who:"guide",text:reply.text,pages:reply.pages,next:reply.next,id:String(epoch)});
+ guideMessages.push({who:"guide",text:reply.text,pages:reply.pages,next:reply.next,kind:reply.kind,id:String(epoch)});
  if(guideMessages.length>40)guideMessages.splice(0,2);
  renderGuideConversation();
 }

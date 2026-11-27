@@ -24,3 +24,5 @@
 .guide-thinking{font-size:.8rem;color:#2a675f;padding:8px 12px}
 @media(max-width:600px){.guide-fab#guideFab{width:64px;height:64px;right:14px;bottom:max(14px,env(safe-area-inset-bottom))}.modal-backdrop:has(.guide-conversation){padding:6px;align-items:flex-end}.modal:has(.guide-conversation){max-height:calc(100dvh - 12px);padding:14px 11px 12px}.guide-conversation{height:44dvh}.guide-dialog-head .guide-face{width:48px;height:48px}}
 @media(prefers-reduced-motion:reduce){.guide-fab#guideFab{transition:none}}
+
+.guide-evidence-kind{font-size:.64rem;text-transform:uppercase;letter-spacing:.07em;font-weight:800;color:#2a675f;margin-bottom:6px}.guide-line.from-visitor .guide-evidence-kind{display:none}
