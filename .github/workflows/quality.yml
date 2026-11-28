@@ -34,6 +34,8 @@ jobs:
         run: node qa/guide-auto.mjs
       - name: Check Ella ambassador conversation and tenant boundaries
         run: node qa/ambassador.mjs
+      - name: Test central AI gateway logic and quota
+        run: node cloud/central-ai/test.mjs
       - name: Check for unexpected PDF files
         run: |
           if find . -type f -iname '*.pdf' -not -path './.git/*' -not -path './docs/Internal_CSAT_Report_2025_Final.pdf' | grep -q .; then

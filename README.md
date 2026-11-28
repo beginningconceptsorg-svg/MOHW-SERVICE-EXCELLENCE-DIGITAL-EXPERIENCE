@@ -83,3 +83,7 @@ All development and commits take place directly on `main`. Earlier branches are 
 ## Ella — AI framework pilot
 
 See [implementation and deployment gates](docs/ELLA_AI_FRAMEWORK.md). Ella uses a tenant-specific manifest, contextual local intelligence and allowlisted page navigation. The cloud adapter is disabled. The report is now present in the repository; the earlier exclusion statement requires a distribution approval review.
+
+## Beginning Concepts Central AI private pilot
+
+The deployable independent Worker and setup guide are in [cloud/central-ai](cloud/central-ai/README.md). This is a public-source pilot with private access, not an activated Ella cloud connection. No internal report data is included in the Worker.
