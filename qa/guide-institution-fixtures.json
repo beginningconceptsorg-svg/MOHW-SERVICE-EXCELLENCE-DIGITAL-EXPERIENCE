@@ -1,0 +1,156 @@
+{
+  "tests": [
+    [
+      "What is EEHCSD?",
+      "fairer"
+    ],
+    [
+      "Why was EEHCSD created?",
+      "Cabinet"
+    ],
+    [
+      "Who heads EEHCSD?",
+      "Kimorley Humphrey"
+    ],
+    [
+      "What are the objectives of EEHCSD?",
+      "resilience"
+    ],
+    [
+      "What branches does EEHCSD have?",
+      "Executive Office"
+    ],
+    [
+      "How can I contact EEHCSD?",
+      "968-1620"
+    ],
+    [
+      "What does social work in health do?",
+      "referral pathways"
+    ],
+    [
+      "What is Health in All Policies?",
+      "other sectors"
+    ],
+    [
+      "What does the research branch do?",
+      "evidence-informed"
+    ],
+    [
+      "What does the customer service branch do?",
+      "feedback"
+    ],
+    [
+      "How do I file a complaint?",
+      "Client Care Connect"
+    ],
+    [
+      "What is the C.A.R.E. Fund?",
+      "500 million"
+    ],
+    [
+      "What are my rights as a patient?",
+      "Charter"
+    ],
+    [
+      "What is the Ministry of Health and Wellness?",
+      "oversees"
+    ],
+    [
+      "What is the Ministry's mission?",
+      "Healthy People"
+    ],
+    [
+      "Who is the Minister of Health?",
+      "Christopher Tufton"
+    ],
+    [
+      "Who is the Permanent Secretary?",
+      "Dunstan"
+    ],
+    [
+      "What are the Ministry's divisions?",
+      "Infrastructure"
+    ],
+    [
+      "Where is the Ministry head office?",
+      "Knutsford"
+    ],
+    [
+      "What are the four RHAs?",
+      "Trelawny"
+    ],
+    [
+      "Where can I find a hospital?",
+      "directory"
+    ],
+    [
+      "What is Vision for Health 2030?",
+      "strategic plan"
+    ],
+    [
+      "What does Technical Services do?",
+      "technical direction"
+    ],
+    [
+      "What does Corporate Services do?",
+      "administrative"
+    ],
+    [
+      "What is HSSP?",
+      "chronic care"
+    ],
+    [
+      "What programmes does the Ministry have?",
+      "HIV"
+    ],
+    [
+      "Why was the Ministry renamed?",
+      "wellness"
+    ]
+  ],
+  "chains": [
+    [
+      [
+        "What is EEHCSD?",
+        "Who heads it?",
+        "How is it structured?",
+        "What are its objectives?",
+        "How can I contact them?"
+      ],
+      [
+        "fairer",
+        "Kimorley",
+        "Executive Office",
+        "resilience",
+        "968-1620"
+      ]
+    ],
+    [
+      [
+        "What is the Ministry of Health and Wellness?",
+        "What is its mission?",
+        "Who leads it?",
+        "Where is its head office?"
+      ],
+      [
+        "oversees",
+        "Healthy People",
+        "Christopher Tufton",
+        "Knutsford"
+      ]
+    ],
+    [
+      [
+        "Who conducted this study?",
+        "What is EEHCSD?",
+        "What does it do?"
+      ],
+      [
+        "Research, Monitoring and Evaluation Branch",
+        "fairer",
+        "resilience"
+      ]
+    ]
+  ]
+}
