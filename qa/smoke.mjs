@@ -64,7 +64,7 @@ assert(g.answer("What are the targets?",action.context).text.includes("20%"));
 assert(g.answer("What is the score for finance communication?").text.includes("33%"));
 assert(g.answer("Open PDF page 70").pages.includes(70));
 assert.equal(g.answer("unrelated obscure question"),null);
-assert(html.includes("guide-welcome-poster.jpg")&&html.includes("guide.js?v=24"));
+assert(html.includes("guide-welcome-poster.jpg")&&html.includes("guide.js?v=25"));
 console.log("PASS: guide grounding, comparisons, follow-ups, source links and portrait launcher");
 
 const finance=g.answer("Tell me about Finance and Accounts");
@@ -95,7 +95,7 @@ assert.equal(sent[0],"What was the score");assert(!ctl.active());
 assert(ctl.start({autoSend:false}));fake.onresult({results:[{0:{transcript:"Hello"},isFinal:true}]});fake.onend();assert.equal(events.at(-1),"review");assert.equal(sent.length,1);
 assert(ctl.start());ctl.cancel();assert(!ctl.active());assert.equal(sent.length,1);
 assert(ctl.start());fake.onerror({error:"not-allowed"});fake.onend();assert(errors.at(-1).includes("denied"));
-assert(reader.includes("guideMic")&&reader.includes("guideVoiceMode")&&html.includes("guide-voice.js?v=24"));
+assert(reader.includes("guideMic")&&reader.includes("guideVoiceMode")&&html.includes("guide-voice.js?v=25"));
 console.log("PASS: speech adapter, cancellation, transcript review and voice mode");
 
 for(const [q,e] of [["What were the study objectives?","three objectives"],["What was HRMD's CSAT score?","36%"],["What was the sample size for NPHL?","89"],["What is the communciation score?","59%"],["What were the positive findings?","71%"],["What were the comments by division?","Corporate Services: 49 / 5 / 44"],["What is the difference between survey and focus groups?","complement"]]) assert(g.answer(q)?.text.includes(e),q);
@@ -120,7 +120,7 @@ assert(speech.spoken("A long answer. "+("Detailed explanation. ".repeat(35)),{br
 let spoken=[],status=[];class U{constructor(text){this.text=text;}}
 const player=speech.makePlayer({synth:{getVoices:()=>voices,cancel:()=>{},speak:u=>spoken.push(u)},Utterance:U,onState:s=>status.push(s)});
 player.play("Hello. This is a voice test.",{rate:1.2});assert.equal(spoken[0].voice.voiceURI,"s");assert.equal(spoken[0].rate,1.2);player.stop();assert(!player.active());
-assert(reader.includes("guideOutputVoice")&&reader.includes("guideVoicePreview")&&html.includes("guide-speech.js?v=24"));
+assert(reader.includes("guideOutputVoice")&&reader.includes("guideVoicePreview")&&html.includes("guide-speech.js?v=25"));
 
 for(const [q,e] of [["How do we deal with staff who never respond to emails?","realistic update date"],["Which divisions tied?","60%"],["Which dimensions tied?","59%"],["What share of ratings came from each division?","400 (35.3%)"],["Show the benchmark gap for all divisions","57 percentage points"],["Show the gap to 85% for all dimensions","41 percentage points"],["Why was communication rated high when focus groups reported problems?","Both findings can be true"],["What can we do about neutral ratings?","35%"],["How can we improve service with limited resources?","low-resource"],["What if 25% of non favourable ratings became favourable?","65.5%"],["What is the Government of Jamaica service excellence policy?","2022"],["What was the overall score and which divisions tied?","60%"]]) assert(g.answer(q)?.text.toLowerCase().includes(e.toLowerCase()),q);
 
