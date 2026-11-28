@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import vm from "node:vm";
 
-for(const name of ["src/app.js","src/guide.js","src/data.js","src/reader.js","sw.js"]){
+for(const name of ["src/app.js","src/guide.js","src/guide-voice.js","src/data.js","src/reader.js","sw.js"]){
  new vm.Script(fs.readFileSync(name,"utf8"),{filename:name});
  console.log("Syntax passed:",name);
 }
@@ -64,7 +64,7 @@ assert(g.answer("What are the targets?",action.context).text.includes("20%"));
 assert(g.answer("What is the score for finance communication?").text.includes("33%"));
 assert(g.answer("Open PDF page 70").pages.includes(70));
 assert.equal(g.answer("unrelated obscure question"),null);
-assert(html.includes("guide-welcome-poster.jpg")&&html.includes("guide.js?v=19"));
+assert(html.includes("guide-welcome-poster.jpg")&&html.includes("guide.js?v=20"));
 console.log("PASS: guide grounding, comparisons, follow-ups, source links and portrait launcher");
 
 const finance=g.answer("Tell me about Finance and Accounts");
@@ -80,3 +80,20 @@ for(const [first,q,expected] of [["Tell me about Finance and Accounts","Which di
 
 for(const [q,expected] of [["How is CSAT calculated?","611"],["What does internal customer mean?","colleague"],["Open printed page 13","PDF page 26"],["What is ordinal logistic regression?","ordered outcomes"],["How many branches were rated?","25"],["Which dimensions were below 50%?","2 of five"],["Show Table 5","PDF page 30"],["How far is Finance from the 85% benchmark?","57 points"],["What was the median?","3.5"],["What is the average of divisions?","55.5%"]]) assert(g.answer(q)?.text.includes(expected),q);
 for(const [first,q,expected] of [["What is the regression model?","What does this mean in practice?","does not prove"],["Tell me about Finance and Accounts","Which dimension was lowest?","25%"],["What was the payment score?","What can we do about it?","Timeliness"]]) assert(g.answer(q,g.answer(first)?.context)?.text.includes(expected),first+" -> "+q);
+
+for(const [q,e] of [["Um, so, how much staff responded?","229"],["What was the see sat score?","54%"],["What was the sample size by division?","Corporate Services: 84"],["What was the sample size for NPHL?","89"],["When was the survey conducted?","20 January"],["How did Public Relations perform?","83%"],["What was the satisfaction by age group?","63.2%"],["Compare satisfaction by employment status","20/51"],["What was the regression coefficient for NPHL?","0.38"],["How many favourable ratings to reach 70%?","183"],["What if we had 100 more favourable ratings?","62.8%"],["How many ratings came from Corporate Services?","400"],["What is the communication gap for Finance compared to the Ministry average?","26 percentage points"],["Compare Finance and Corporate Services across all five dimensions","25%"],["Draft a response to a delayed request","Thank you for bringing"],["Create an SLA template","Illustrative internal service-level agreement"],["How can I handle a rude colleague?","acknowledge"],["What was the overall score and what were the study limitations?","recall bias"],["What are the data quality issues?","Focus-group sex counts"],["What is the difference between percentage points and relative increase?","20.4%"],["I am a manager","measurable improvements"],["Hi there","Glad you're here"],["What is the communciation score?","59%"]]) assert(g.answer(q)?.text.includes(e),q);
+for(const [first,q,e] of [["Compare Finance and Corporate Services","Compare all five dimensions","25%"],["Compare Finance and Corporate Services","Where is the largest gap?","Communication"],["What was the satisfaction by age group?","What does that mean?","statistically significant"],["Start a practice quiz","B","That's right"],["What was the overall score?","repeat","54%"],["I am a manager","Give me a 90-day improvement plan","30 days"]]) assert(g.answer(q,g.answer(first)?.context)?.text.includes(e),first+" -> "+q);
+
+vm.runInNewContext(fs.readFileSync("src/guide-voice.js","utf8"),sandbox);
+const v=sandbox.window.ServiceGuideVoice;
+let fake,events=[],transcript=[],sent=[],errors=[];
+class FakeRecognition{constructor(){fake=this;}start(){this.onstart();}stop(){this.onend();}abort(){this.onend();}}
+const ctl=v.createVoice({getRecognition:()=>FakeRecognition,onState:x=>events.push(x),onTranscript:x=>transcript.push(x),onSubmit:x=>sent.push(x),onError:x=>errors.push(x)});
+assert(ctl.start({language:"en-JM",autoSend:true}));assert.equal(fake.lang,"en-JM");
+fake.onresult({results:[{0:{transcript:"What was the score"},isFinal:true}]});fake.onend();
+assert.equal(sent[0],"What was the score");assert(!ctl.active());
+assert(ctl.start({autoSend:false}));fake.onresult({results:[{0:{transcript:"Hello"},isFinal:true}]});fake.onend();assert.equal(events.at(-1),"review");assert.equal(sent.length,1);
+assert(ctl.start());ctl.cancel();assert(!ctl.active());assert.equal(sent.length,1);
+assert(ctl.start());fake.onerror({error:"not-allowed"});fake.onend();assert(errors.at(-1).includes("denied"));
+assert(reader.includes("guideMic")&&reader.includes("guideVoiceMode")&&html.includes("guide-voice.js?v=20"));
+console.log("PASS: speech adapter, cancellation, transcript review and voice mode");

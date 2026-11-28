@@ -26,3 +26,17 @@
 @media(prefers-reduced-motion:reduce){.guide-fab#guideFab{transition:none}}
 
 .guide-evidence-kind{font-size:.64rem;text-transform:uppercase;letter-spacing:.07em;font-weight:800;color:#2a675f;margin-bottom:6px}.guide-line.from-visitor .guide-evidence-kind{display:none}
+
+.guide-mic{display:grid;place-items:center;min-width:46px;border:1px solid #b8d9cf;background:#eaf6ef;color:#146c69;border-radius:12px;cursor:pointer}
+.guide-mic:focus-visible{outline:2px solid #146c69;outline-offset:2px}
+.guide-mic.recording{background:#9c302c;color:white;border-color:#9c302c;animation:guideMicPulse 1.6s infinite}
+@keyframes guideMicPulse{0%,100%{box-shadow:0 0 0 0 #9c302c44}50%{box-shadow:0 0 0 6px #9c302c15}}
+.guide-voice-status{font-size:.75rem;color:#245e56;min-height:1.15em;line-height:1.4}
+.guide-voice-options{display:flex;flex-wrap:wrap;gap:8px 12px;margin:7px 0 0;font-size:.72rem;color:#294e49;align-items:center}
+.guide-voice-options label{display:flex;align-items:center;gap:5px}
+.guide-voice-options input{accent-color:#146c69;width:16px;height:16px}
+.guide-voice-options select{max-width:128px;border:1px solid #c7ded4;border-radius:6px;background:white;color:#23483f;padding:3px;font-size:.72rem}
+.modal:has(.guide-conversation){width:min(100%,520px)}
+.guide-compose-row .guide-mic{flex:none}
+@media(max-width:600px){.guide-mic{min-width:43px}.guide-voice-options{gap:4px 8px}.guide-conversation{height:41dvh}.guide-compose-row .btn{padding:9px 10px}}
+@media(prefers-reduced-motion:reduce){.guide-mic.recording{animation:none}}
