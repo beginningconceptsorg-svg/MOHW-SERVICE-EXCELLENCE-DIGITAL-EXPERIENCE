@@ -427,7 +427,7 @@ const lookup=(id)=>A.find(a=>a.id===id);
 const money=/\b(pay|paid|payment|payments|payroll|salary|salaries|reimbursement|allowance|invoice|refund|financial)\b/;
 const themes=[
 {keys:/\b(ignored|unanswered|no reply|no response|not responding|never respond|calls|email|emails|updates|communication|information|not informed|nobody tells|not getting an answer)\b/,title:"Communication and responsiveness",page:[32,49,53,73],ids:[9,6],finding:"Staff described delayed replies, unclear information and inconsistent updates.",steps:["Acknowledge the request and provide a reference.","Agree on a realistic update date and a responsible contact.","Record outstanding requests and use an authorised escalation route when overdue."],metric:"Track acknowledgement time, overdue replies and the Communication and Timeliness CSAT scores."},
-{keys:/\b(lost|missing|misplaced|paperwork|document|documents|file|files|records|form|forms|submission)\b/,title:"Document handling and workflow",page:[32,43,71,72],ids:[4,5],finding:"Staff reported lost paperwork and inconsistent processes.",steps:["Check the approved records system and preserve any reference number.","Confirm the receiving unit and trace the hand-off.","Document the resolution and use a secure, standardised submission process."],metric:"Track missing records, repeat submissions, processing errors and SOP adoption."},
+{keys:/\b(lost|missing|misplaced|paperwork|document|documents|file|files|records|form|forms|submissions?)\b/,title:"Document handling and workflow",page:[32,43,71,72],ids:[4,5],finding:"Staff reported lost paperwork and inconsistent processes.",steps:["Check the approved records system and preserve any reference number.","Confirm the receiving unit and trace the hand-off.","Document the resolution and use a secure, standardised submission process."],metric:"Track missing records, repeat submissions, processing errors and SOP adoption."},
 {keys:money,title:"Payment and administrative turnaround",page:[26,28,32,54,72],ids:[6,5],finding:"Cost and Payment Processes was the weakest dimension (44% in Figure 8); Timeliness was 48%.",steps:["Confirm the request type and approved process, without collecting private payroll details.","Identify the hand-off or approval step causing the delay.","Agree on a realistic update and escalation route through the authorised office."],metric:"Track payment turnaround, overdue cases and compliance with documented timelines."},
 {keys:/\b(procurement|purchase|purchasing|approval|approvals|bureaucracy|process|processes|red tape|workflow|bottleneck)\b/,title:"Process consistency",page:[32,43,53,71,72],ids:[4,5,6],finding:"The study reports procedural inconsistencies, delayed approvals and inefficient workflows.",steps:["Map the current process with the units involved.","Identify repeat approvals, unclear responsibilities and avoidable hand-offs.","Pilot a clarified procedure and review processing time before wider rollout."],metric:"Track turnaround, rework, documented process coverage and timeline compliance."},
 {keys:/\b(rude|rudeness|disrespect|angry|upset|attitude|unprofessional|courtesy|empathy|conflict|listen|listening)\b/,title:"Professional service and empathy",page:[35,53,70,71],ids:[2,3],finding:"Staff described inconsistent service experiences and a need for stronger customer service skills.",steps:["Listen and acknowledge the concern without defensiveness.","Clarify what the colleague needs and what you can realistically do.","Agree on an update, and use the appropriate confidential channel if the issue requires formal attention."],metric:"Track training completion, post-training evaluation and service-related feedback."},
@@ -518,5 +518,79 @@ function answer(input,p){
  let a=special(input,p);return a?pack(a,p,input):old.answer(input,p);
 }
 async function search(q,p){return old.search(q,p);}
+root.ServiceGuide={answer,search};
+})(window);
+
+/* Structured analytical planner, v24. Explicit entities, metrics and operations.
+   An answer is constructed from source tables, never from a test question list. */
+(function(root){
+"use strict";
+const prior=root.ServiceGuide,S=root.STUDY,D=S.divisions,M=S.dimensions,A=S.actions;
+const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\b([a-z0-9]+)[’']s\b/gi,"$1").replace(/\.(?!\d)|(?<!\d)\./g," ").replace(/[^a-z0-9%.]+/g," ").trim();
+const words=(q,a)=>(" "+q+" ").includes(" "+a+" ");
+const aliases=[["executive management","executive direction and management","executive direction","executive division","executive"],["eehcsd","enabling environment in health and client services division","enabling environment","client services division"],["national public health laboratory","national public health lab","nphl","public health lab","laboratory"],["standards and regulation","standards regulation","regulatory division","standards division"],["technical services","technical division","technical"],["policy planning and development","policy planning","ppdd","policy division"],["corporate services","corporate division","corporate"],["finance and accounts","financial management and accounting services","financial management","finance division","finance","accounts"]];
+const dimensions=[["communication","communication score","information sharing","communication dimension"],["access and facilities","access facilities","accessibility","physical access","facilities","access"],["quality and reliability","quality reliability","quality of service","service reliability","reliability","quality"],["timeliness responsiveness","timeliness","responsiveness","turnaround","response time","waiting time"],["cost and payment processes","cost payment processes","cost and payment","payment processes","payments","payment","cost"]];
+const get=(q,sets)=>sets.flatMap((a,i)=>a.some(s=>words(q,s))?[i]:[]);
+const round=n=>Math.round(n*10)/10;
+const list=x=>x.map(s=>"• "+s).join("\n");
+const hist="These are 2025 study ratings, not current performance.";
+function out(text,pages,context,next=[],kind="Report evidence"){return {text,pages:[...new Set(pages)],context,next,kind};}
+function finish(a,p,q){if(!a)return null;const c=a.context||p||{},h=(p?.history||[]).slice(-19);h.push({q:String(q).slice(0,600),kind:c.kind,id:c.id,dimension:c.dimension,pages:a.pages});return {...a,context:{...c,role:c.role||p?.role,history:h,last:{text:a.text,pages:a.pages,next:a.next}}};}
+const actionNames=[
+["internal service standards","service standards"],["customer service competencies","customer service training","training competencies"],["confidential feedback and quality improvement","confidential feedback","quality improvement"],["document control and records","document control","records management"],["cross divisional procedures","cross divisional workflows"],["timeliness and administrative workflow","administrative workflow","administrative turnaround"],["leadership visibility and accountability","leadership accountability","leadership visibility"],["staff welfare and recognition","staff welfare","staff recognition"],["internal communication systems","communication systems"],["physical access and facilities","facility management","physical facilities"]];
+function action(a,q){
+ let lead=/\b(who|owner|responsible|lead|accountable)\b/.test(q),time=/\b(when|timeline|timeframe|period|deadline|due|financial year|schedule)\b/.test(q),measure=/\b(indicators?|kpis?|targets?|metrics?|measure|success)\b/.test(q),steps=/\b(steps|activities|tasks|deliverables|implement|what to do)\b/.test(q),gap=/\b(gap|problem|issue|challenge|rationale|why)\b/.test(q);
+ let t=a.title+". ";
+ if(lead||time||measure||steps||gap){let parts=[];if(lead)parts.push("Proposed lead: "+a.owner+".");if(time)parts.push("Proposed timeframe: "+a.period+".");if(measure)parts.push("Proposed indicators:\n"+list(a.indicators));if(steps)parts.push("Suggested steps:\n"+list(a.steps));if(gap)parts.push("Issue identified: "+a.gap+" "+a.impact);t+=parts.join("\n");}else t+=a.official+"\nThe issue: "+a.gap+"\nSuggested steps:\n"+list(a.steps)+"\nProposed lead: "+a.owner+". Timeframe: "+a.period+".";
+ return out(t+"\nThese are proposed actions, not verified achievements.",[a.page],{kind:"action",id:a.id},["Who is responsible?","What are the targets?","When is it due?"],"Report evidence");
+}
+function division(i,j=null){let d=D[i];if(j!==null)return out(d.name+" recorded "+d.dimensions[j]+"% for "+M[j].name+", compared with "+M[j].score+"% Ministry-wide for that dimension. "+hist,[26,28],{kind:"division",id:i,dimension:j},["What about Corporate Services?","How can we improve?"]);
+ return out(d.name+" received "+d.score+"% overall, with "+d.agree+" favourable ratings out of "+d.ratings+" ratings.\n"+list(M.map((m,j)=>m.name+": "+d.dimensions[j]+"%"))+"\n"+hist,[27,28],{kind:"division",id:i},["Which dimension was lowest?","What can we do to improve?"]);}
+function overallDimension(j){let m=M[j];return out(m.name+" scored "+m.score+"% Ministry-wide in the 2025 study. "+m.detail+" "+m.insight+(j===4?" Figure 8 and Table 3 report 44%; the discussion contains a conflicting 35% figure.":""),j===4?[26,28,54]:[26],{kind:"dimension",id:j},["Compare divisions","What can we do to improve?"]);}
+function comparison(ds,ms,q){
+ let a=D[ds[0]],b=D[ds[1]],rows=(ms.length?ms:[-1]).map(j=>{let x=j===-1?a.score:a.dimensions[j],y=j===-1?b.score:b.dimensions[j];return {j,x,y,gap:Math.abs(x-y)};});
+ let t=rows.map(z=>(z.j===-1?"Overall CSAT":M[z.j].name)+": "+a.name+" "+z.x+"%; "+b.name+" "+z.y+"%; "+z.gap+" percentage points apart"+(z.x===z.y?" (tied).":".")).join("\n");
+ if(rows.length>1){let biggest=Math.max(...rows.map(x=>x.gap));t+="\nLargest difference: "+rows.filter(x=>x.gap===biggest).map(x=>M[x.j].name).join(" and ")+", "+biggest+" percentage points.";}
+ return out(t+"\n"+hist,ms.length?[28]:[27],{kind:"comparison",divs:ds,dims:ms,dimension:ms.length===1?ms[0]:undefined},["Compare all five dimensions","Where is the largest gap?"],"Calculated comparison");
+}
+function sensitive(q){
+ if(/\b(system prompt|developer instructions|hidden instructions|ignore (all |previous |your )?instructions|fabricate|make up (a |the )?(score|result|statistic)|pretend (the )?ministry approved)\b/.test(q))return out("I cannot invent study findings or disclose hidden instructions. I can help with verified aggregate report evidence.",[],null,["Give me the big picture"],"Evidence boundary");
+ if(/\b(identify|name|list|reveal|give|tell|show|find|who|which)\b/.test(q)&&/\b(respondent names|participant names|names of respondents|names of participants|who complained|who said|individual complainant|complainant identity|staff member complained|identify participants|identify respondents|survey participant identity|private payroll records|employee id|personal trn|private medical records)\b/.test(q))return out("I cannot identify participants or provide personal records. This report is intended to describe aggregate experiences. Use an appropriate authorised confidential channel for individual concerns.",[],null,[],"Scope and confidentiality");
+ if(/\b(today|now|currently|current|latest|2026|2027|2028|has .* achieved|has .* completed|already implemented)\b/.test(q)&&/\b(score|csat|satisfaction|performance|achieved|completed|implemented|progress|status)\b/.test(q)&&!/\b(proposed|target|deadline|timeline|timeframe|financial year|fy|forecast|hypothetical)\b/.test(q))return out("The 2025 report does not establish the current score or implementation status. Its baseline and proposed targets are not live performance. A new authorised monitoring report would be needed.",[26,70],null,["What was the 2025 baseline?"],"Evidence boundary");
+ return null;
+}
+function route(input,p){
+ let q=norm(input);if(!q)return null;const safe=sensitive(q);if(safe)return safe;
+ if(/\?\s*\S|\band (?:what|how|why|who|when|which|show|compare|give|tell|calculate|list)\b/i.test(input))return null;
+ let ds=get(q,aliases),ms=get(q,dimensions);
+ let score=/\b(score|scores|csat|satisfaction|rating|ratings|rate|rated|percentage|perform|performance|result|results|figure|percent)\b/.test(q);
+ let comp=/\b(compare|comparison|difference|gap|versus|vs|apart|higher|lower|between)\b/.test(q);
+ let advice=/\b(improve|recommend|address|fix|prevent|prioriti[sz]e|should do|what can we do|action plan|why|how can|how should|how do|how would)\b/.test(q);
+ // Explicit workstream numbers and named workstreams.
+ let n=q.match(/\b(?:action|workstream|recommendation|item)\s*(?:number\s*)?(\d{1,2})\b/);
+ if(n&&+n[1]>=1&&+n[1]<=10&&!/\b(current|completed|achieved|implemented)\b/.test(q))return action(A[+n[1]-1],q);
+ let actionFields=/\b(who|owner|responsible|lead|accountable|when|timeline|timeframe|period|deadline|due|indicators?|kpis?|targets?|metrics?|steps|activities|tasks|deliverables|rationale|gap)\b/.test(q);
+ let aIds=get(q,actionNames);
+ if(aIds.length===1&&actionFields&&!/\b(division score|compare|ranking)\b/.test(q)&&!score)return action(A[aIds[0]],q);
+ if(p?.kind==="action"&&Number.isInteger(p.id)&&actionFields&&!ds.length&&!ms.length&&!/\b(all|overall|study|other|different|current)\b/.test(q))return action(A[p.id-1],q);
+ if(/\b(no i meant|no i mean|actually i meant|sorry i meant|i meant|i mean)\b/.test(q)&&ds.length===1&&!advice){if(ms.length===1)return division(ds[0],ms[0]);if(Number.isInteger(p?.dimension))return division(ds[0],p.dimension);return division(ds[0]);}
+ if(p?.kind==="division"&&Number.isInteger(p.id)&&ds.length===0&&ms.length===1&&score&&!advice&&!comp&&!/\b(all|across|ministry wide|overall ministry|which division)\b/.test(q))ds=[p.id];
+ if(p?.kind==="division"&&Number.isInteger(p.dimension)&&ds.length===1&&!ms.length&&!advice&&!/\b(overall|all dimensions|breakdown)\b/.test(q)&&/^(and |what about |how about |same for |now |then )/.test(q))return division(ds[0],p.dimension);
+ if(p?.kind==="comparison"&&p.divs?.length===2&&!ds.length&&/\b(their|them|both|those|two divisions|largest gap|biggest gap|all five dimensions)\b/.test(q)&&!advice){if(ms.length===1)return comparison(p.divs,ms,q);if(/\b(all five|all dimensions|largest gap|biggest gap)\b/.test(q))return comparison(p.divs,[0,1,2,3,4],q);}
+ if(ds.length===2&&!advice&&!/\b(combined|combine|pooled|weighted|aggregate|together|regression|odds|confidence interval)\b/.test(q)&&(comp||ms.length)){if(/\b(all five|all dimensions|each dimension|every dimension|breakdown)\b/.test(q))ms=[0,1,2,3,4];return comparison(ds,ms,q);}
+ // Arbitrary hypothetical thresholds. Preserve existing fixed-denominator safeguards.
+ let target=q.match(/\b(\d{1,3}(?:\.\d+)?)\s*(?:%|percent)\b|\b(\d{1,3}(?:\.\d+)?)\s*%/);
+ if(/\b(how many|number of|additional|more|required|need)\b/.test(q)&&/\b(favourable|favorable|positive)\b/.test(q)&&/\b(ratings|responses)\b/.test(q)&&/\b(reach|achieve|target|get to|attain|raise|hit)\b/.test(q)&&target){
+ let t=Number(target[1]||target[2]);if(t<0||t>100)return out("A satisfaction target must be between 0% and 100%.",[26],p,[],"Clarification");
+ let d=ds.length===1?D[ds[0]]:null;if(ds.length>1)return null;let den=d?d.ratings:1133,old=d?d.agree:611,required=Math.ceil(den*t/100-1e-10);
+ return out("With "+den+" total ratings held constant, "+(d?d.name:"the Ministry")+" would need at least "+required+" favourable ratings for "+t+"% CSAT — "+Math.max(0,required-old)+" more than the "+old+" recorded. This is an illustrative fixed-denominator calculation, not a forecast, official division target or number of additional employees.",[d?27:26,70],{kind:d?"division":"overall",id:d?ds[0]:undefined},["How is CSAT calculated?"],"Illustrative calculation");
+ }
+ if(ds.length===1&&ms.length===1&&score&&!advice&&!comp&&!/\b(highest|lowest|rank|regression|odds|target|benchmark|average|across|other divisions|all divisions)\b/.test(q))return division(ds[0],ms[0]);
+ if(ds.length===1&&!ms.length&&score&&!advice&&!comp&&!/\b(highest|lowest|rank|regression|odds|target|benchmark|average|sample|selected|response rate|how many|number|contribution|share|volume|favourable|favorable|non favourable|not favourable|branch|unit|appendix|comments|demographics|positive|negative|neutral)\b/.test(q))return division(ds[0]);
+ if(!ds.length&&ms.length===1&&score&&!advice&&!comp&&!/\b(highest|lowest|rank|across|by division|all divisions|which division|targets?|benchmark|regression|odds|focus group|staff said|distribution|comments|hypothetical)\b/.test(q))return overallDimension(ms[0]);
+ return null;
+}
+function answer(q,p){let a=route(q,p);return a?finish(a,p,q):prior.answer(q,p);}
+async function search(q,p){return prior.search(q,p);}
 root.ServiceGuide={answer,search};
 })(window);
