@@ -263,6 +263,7 @@ function decorate(r,p){
 }
 function answer(q,p){return decorate(advanced(q,p),p);}
 async function search(q,p){return decorate(await base.search(q,p),p);}
+(root.GuideCatalogue??=[]).push(...evidence.map(e=>({id:"evidence:"+e.id,topic:e.id,domain:"report",keys:e.keys,text:e.text,pages:e.pages,next:["What are the recommendations?"],kind:"evidence"})));
 root.ServiceGuide={answer,search};
 })(window);
 /* Conversation planner, structured research queries and coaching. No LLM/API. */
@@ -725,6 +726,7 @@ function resolve(input,p,allowLexical){
 }
 function answer(q,p){let a=previous.answer(q,p);if(a?.kind==="Evidence boundary"||a?.kind==="Scope and confidentiality")return a;return resolve(q,p,false)||a||resolve(q,p,true);}
 async function search(q,p){return answer(q,p)||previous.search(q,p);}
+(root.GuideCatalogue??=[]).push(...nodes.map(n=>({id:"report:"+n.id,topic:n.id,domain:"report",keys:n.terms,text:n.text,pages:n.pages,next:n.next,kind:["sampling","methods","participants"].includes(n.id)?"method":"overall",role:n.role})));
 root.ServiceGuide={answer,search};
 })(window);
 /* Official public institutional knowledge, snapshot 27 Nov 2026.
@@ -825,5 +827,147 @@ function route(input,p){
 }
 function answer(q,p){let a=old.answer(q,p);if(a?.kind==="Scope and confidentiality")return a;if(a?.context?.kind==="division"&&a?.pages?.length&&/^(?:no |actually |sorry |what about |how about |and |same for |tell me about )/i.test(String(q)))return a;let n=route(q,p);return n||a;}
 async function search(q,p){return answer(q,p)||old.search(q,p);}
+(root.GuideCatalogue??=[]).push(...Object.values(nodes).map(n=>({id:"institution:"+n.id,topic:n.id,domain:n.focus,keys:n.id.replace(/^div_/,"")+" "+n.pattern.source.replace(/[^a-zA-Z ]/g," "),text:n.text,pages:[],links:n.refs.map(k=>({label:sources[k][0],url:sources[k][1]})),next:n.next,kind:"institution"})));
+root.ServiceGuide={answer,search};
+})(window);
+
+/* Unified evidence planner: deterministic retrieval, cross-domain composition,
+   contextual references and source-aware recaps. No remote inference or new facts. */
+(function(root){
+"use strict";
+const prior=root.ServiceGuide,K=root.GuideCatalogue||[];
+const norm=x=>String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’']/g,"").replace(/[^a-z0-9% ]/g," ").replace(/\s+/g," ").trim();
+const STOP=new Set("a an the of to in on for from by at as with about and or but is are was were be been being it its this that these those they them their he she his her you your i me my we our us what which who whom whose how why when where can could would should do does did have has had may might will shall please tell give show explain really actually just kind thing work done know get help make want need".split(" "));
+const stem=w=>w.length>5?w.replace(/(?:ments|ment|ations|ation|ing|ed|es|s)$/,""):w.length>3?w.replace(/s$/,""):w;
+const unique=a=>[...new Set(a)];
+// Curated equivalence classes normalise meaning before matching any source.
+const concepts=[
+["authorship",/\b(authors?|authorship|researchers?|wrote|written|prepared|conducted|carried out|put together|behind the study)\b/g],
+["origins",/\b(origins?|establish(?:ed|ment)?|creation|creat(?:ed|ion)|formed|set up|came into being|came about|began|founded|founding|prompted)\b/g],
+["structure",/\b(organogram|organizational chart|organisational chart|structure|structured|branches|units|sections|made up of|organised|organized)\b/g],
+["leadership",/\b(heads?|headed|leads?|led|director|in charge|runs|leadership|boss)\b/g],
+["mandate",/\b(mandate|objectives?|functions?|responsibilities|duties|remit|goals|role|purpose)\b/g],
+["anonymity",/\b(anonymity|anonymous|confidentiality|confidential|disclose who|identify themselves|give their names|reveal their identity|names recorded|identity|identities|privacy|private)\b/g],
+["analysis",/\b(analy[sz](?:e|ed|ing|is)|crunch the numbers|statistical software|statistics software|data processing|process the data|number crunching)\b/g],
+["sampling",/\b(sampling|randomly selected|selection bias|selected|chosen|picked|recruited|representative|recruitment)\b/g],
+["barriers",/\b(barriers?|obstacles?|hurdles?|difficulties|impediments|access to care|accessing care|getting care|getting treatment)\b/g],
+["feedback",/\b(feedback|complaints?|complain|compliments?|praise|commendation|commend|suggestions?|grievances?)\b/g],
+["contact",/\b(contact|telephone|phone|address|reach|call|email|office location)\b/g],
+["funding",/\b(funding|funded|financed|financing|sponsor(?:ed|ship)?|budget|cost of the study)\b/g],
+["limitations",/\b(limitations?|weakness(?:es)?|shortcomings?|flaws?|bias|biased|prove|proof|causal(?:ity)?|cause and effect|reliab(?:le|ility)|credible|trustworthy)\b/g],
+["participants",/\b(participants?|respondents?|employees|staff members|people who took part|surveyed|interviewees)\b/g],
+["regions",/\b(regional health authorities|regional health authority|health regions|health region|rhas?|regional administration)\b/g],
+["rights",/\b(rights?|entitlements?|charter|dignity)\b/g],
+["benchmark",/\b(benchmarks?|standard|threshold|expected level|target)\b/g]
+];
+function words(s){let q=norm(s),tags=[];for(let [k,re] of concepts){re.lastIndex=0;if(re.test(q))tags.push("@"+k);re.lastIndex=0;}return unique(q.split(" ").filter(x=>x.length>2&&!STOP.has(x)).map(stem).concat(tags));}
+const titles={
+ "institution:ee":"EEHCSD overview","institution:eehistory":"How the division was established","institution:objectives":"EEHCSD goals and responsibilities","institution:structure":"EEHCSD organisational structure","institution:eelead":"EEHCSD leadership","institution:eecontact":"EEHCSD contact details","institution:social":"Social Work in Health and access barriers","institution:environment":"Equity and people-centred care","institution:customer":"Client care and complaint resolution","institution:research":"Research, Monitoring and Evaluation","institution:complaint":"Official feedback channels","institution:ministry":"Ministry overview","institution:mission":"Ministry mission and vision","institution:mlead":"Ministry leadership","institution:mstructure":"Ministry divisions","institution:mcontact":"Ministry contact details","institution:regions":"Regional health authorities","report:authors":"Who conducted the study","report:team":"Research team","report:methods":"Data collection methods","evidence:methods":"Research design and analysis","report:ethics":"Consent and confidentiality","report:sampling":"Sampling and selection","report:limits":"Study limitations","evidence:limitations":"Study limitations","report:benchmark":"Satisfaction benchmark and target"
+};
+const title=n=>titles[n.id]||n.topic.replace(/_/g," ");
+const indexed=K.map(n=>({...n,heading:title(n),keySet:new Set(words(n.keys+" "+title(n))),bodySet:new Set(words(n.text))}));
+const count=new Map();for(let n of indexed)for(let t of new Set([...n.keySet,...n.bodySet]))count.set(t,(count.get(t)||0)+1);
+const weight=t=>1+Math.log((indexed.length+1)/((count.get(t)||0)+1));
+const privacy=/\b(system prompt|hidden instructions|ignore .*instructions|make up|fabricate|private records|personal trn|employee id|participant names|respondent names|names of (participants|respondents)|who complained|who said|diagnose|my medication|my diagnosis)\b/;
+const fresh=/\b(today|currently|current|latest|live|as of now|right now|has .* started|already implemented|has .* achieved|has .* completed)\b/;
+const quantitative=/\b(score|scores|ratings?|csat|percentage|percent|rank|highest|lowest|calculate|regression|odds|p value|confidence interval|how many more)\b/;
+const institutional=/\b(eehcsd|enabling environment|mohw|ministry|health authority|health authorities)\b/;
+const study=/\b(study|research|report|survey|focus groups|2025|researchers)\b/;
+function domain(q,p){if(/\b(eehcsd|enabling environment|division)\b/.test(q)&&!study.test(q)&&!quantitative.test(q))return "ee";if(study.test(q)||quantitative.test(q))return "report";if(/\b(mohw|ministry|health authority|health authorities)\b/.test(q))return "mohw";if(p?.kind==="institution")return p.institution;return null;}
+function rank(q,p){
+ const qs=words(q).filter(x=>!["study","report","research","survey","ministry","division","eehcsd","mohw","health"].includes(x)),d=domain(q,p);
+ if(!qs.length)return [];
+ const den=qs.reduce((s,t)=>s+weight(t),0);
+ return indexed.map(n=>{let hit=qs.filter(t=>n.keySet.has(t)||n.bodySet.has(t)),cover=hit.reduce((s,t)=>s+weight(t),0)/den;
+ let score=hit.reduce((s,t)=>s+weight(t)*(n.keySet.has(t)?1.35:.72),0)/den;
+ if(d&&n.domain===d)score+=.17;if(d&&n.domain!==d)score-=.17;
+ if(p?.focus===n.topic)score+=.025;
+ return {n,hit,cover,score};}).filter(x=>x.hit.length>=2&&x.cover>=.55).sort((a,b)=>b.score-a.score);
+}
+function fromNode(n,p,q){
+ return {text:n.text,pages:n.pages||[],links:n.links||[],kind:n.domain==="report"?"Report evidence":"Official Ministry information · checked 27 Nov 2026",next:n.next||[],context:{kind:n.kind||"overall",institution:n.domain==="report"?undefined:n.domain,focus:n.topic,id:n.kind==="evidence"?n.topic:undefined,role:p?.role}};
+}
+const node=id=>indexed.find(n=>n.id===id);
+function pick(id,p,q){const n=node(id);return n?fromNode(n,p,q):null;}
+function evidenceReply(a){return a&&(a.pages?.length||a.links?.length)&&!["Possible source matches","Source excerpts"].includes(a.kind);}
+function store(a,p,q){
+ if(!a)return null;
+ let c=a.context||p||{},last={text:a.text,pages:a.pages||[],links:a.links||[],next:a.next||[],kind:a.kind};
+ let archive=(p?.archive||[]).slice(-11);
+ if(evidenceReply(a)&&!["Source navigation","Concise recap","Recap"].includes(a.kind))archive.push({q:String(q).slice(0,600),text:a.text,pages:last.pages,links:last.links,next:last.next,kind:a.kind,context:{kind:c.kind,id:c.id,dimension:c.dimension,focus:c.focus,institution:c.institution,divs:c.divs,dims:c.dims,issue:c.issue}});
+ return {...a,context:{...c,role:c.role||p?.role,archive,last}};
+}
+function direct(q,p){
+ let s=norm(q);
+ if(!s||privacy.test(s))return null;
+ if(p?.last&&/^(how do i know (youre|you are) right|how do you know|where did (you|that) (get|come) (that|it|from)|where did you get (that|this|it) from|what is your source|what are your sources|can you (show|cite) (your )?(sources|evidence)|show (me )?(your |the )?(sources|evidence)|source|sources|reference|references|which page|prove it)$/.test(s)){
+ let x=p.last;if(!x.pages?.length&&!x.links?.length)return null;return {text:"Here "+(x.pages?.length&&x.links?.length?"are the report pages and official Ministry sources":x.links?.length?"are the official Ministry sources":"are the report pages")+" supporting my previous answer. "+(x.links?.length?"The institutional information is a dated snapshot; check the linked official pages for changes.":"The PDF page numbers include the preliminary pages."),pages:x.pages||[],links:x.links||[],kind:"Source navigation",context:p,next:x.next||[]};}
+ if(p?.last&&/^(repeat|repeat that|say that again|can you repeat|what did you say|read that again)$/.test(s)&&p.last.links?.length)return {text:p.last.text,pages:p.last.pages||[],links:p.last.links,kind:"Recap",context:p,next:p.last.next||[]};
+ if(p?.last?.links?.length&&/^(shorter|simpler|keep it short|in a nutshell|in plain english|summari[sz]e that|be brief|one sentence)$/.test(s)){let text=p.last.text.split(/(?<=[.!?])\s+/).slice(0,2).join(" ");return {text,pages:p.last.pages||[],links:p.last.links,kind:"Concise recap",context:p,next:p.last.next||[]};}
+ if(/^(what can you (actually )?(do|help me with)|how can you help( me)?|what do you know|what are you capable of|what sort of questions can i ask)$/.test(s))return {text:"I can help you explore three connected areas: the 2025 Internal Customer Satisfaction Study; EEHCSD's mandate, leadership and services; and Jamaica's Ministry of Health and Wellness, including its divisions and regional health authorities. I can compare study results, calculate hypothetical targets, explain research methods and suggest practical service improvements. I can also direct you to official feedback channels and the original sources. I am a digital guide, not a live Ministry officer or a generative AI model.",pages:[],links:[],kind:"Conversation",context:p,next:["What was the study about?","What is EEHCSD?","What is the Ministry of Health and Wellness?"]};
+ if(fresh.test(s))return null;
+ // Resolve specific roles and concepts before a generic institution overview can hide them.
+ if(/\b(creation|establishment|origins?|founded|formed|set up|came into being|prompted|created)\b/.test(s)&&/\b(division|eehcsd|enabling environment)\b/.test(s)&&!study.test(s))return pick("institution:eehistory",p,q);
+ if(/\b(crunch the numbers|statistical software|statistics software|data processing software|software.*(data|analys)|process the data|analyse the data|analyze the data|number crunching)\b/.test(s)&&!quantitative.test(s))return pick("evidence:methods",p,q);
+ if(/\b(disclose who|identify themselves|give their names|reveal their identity|names recorded)\b/.test(s)&&!/\b(research team|authors)\b/.test(s))return pick("report:ethics",p,q);
+ if(/\b(praise|commend|commendation|compliment|grievance)\b/.test(s)&&/\b(send|give|where|who|how|submit|leave|register|express|mechanism|channel|process)\b/.test(s))return pick("institution:complaint",p,q);
+ if(/\b(barriers?|obstacles?|hurdles?)\b/.test(s)&&/\b(care|health|treatment|services)\b/.test(s)&&!study.test(s)){
+ return pick(/\b(who|help|assistance|support|social)\b/.test(s)?"institution:social":"institution:ee",p,q);}
+ if(/\b(prove|proof|causal|cause and effect|shortcomings?|flaws?|weaknesses)\b/.test(s)&&study.test(s))return pick("report:limits",p,q);
+ if(/\b(avoid|reduce|minimise|minimize|prevent)\b/.test(s)&&/\b(selection bias|sampling bias)\b/.test(s)){
+ let a=pick("report:sampling",p,q),b=pick("report:limits",p,q);if(a&&b)return {...a,text:a.text+" "+b.text,pages:unique([...a.pages,...b.pages]),kind:"Report evidence"};}
+ if(/\b65(?:%| percent)(?: |$)/.test(s)&&/\b85(?:%| percent)(?: |$)/.test(s)&&/\b(differences?|different|compare|why)\b/.test(s)){let a=pick("report:benchmark",p,q);return a?{...a,text:a.text+" The proposed 65% internal target is 20 percentage points below the 85% benchmark."}:null;}
+
+ if(/\b(government|goj|national)\b/.test(s)&&/\b(standard|benchmark|expected level)\b/.test(s)&&/\b(customer satisfaction|service excellence|csat)\b/.test(s))return pick("report:benchmark",p,q);
+ if(/\b(source of (the )?data|where.*data.*come from|how.*data.*obtained|where.*information.*come from)\b/.test(s))return pick("report:methods",p,q);
+ if(/\b(two branches|both branches|their respective roles)\b/.test(s)&&/\b(differences?|roles|functions|responsibilities|contribution|what did)\b/.test(s)&&["authors","team","roles"].includes(p?.focus))return pick("report:roles",p,q);
+ if(p?.archive?.length&&/^(go back to|return to|revisit|back to|let us return to|lets return to) /.test(s)){
+  let subject=s.replace(/^(go back to|return to|revisit|back to|let us return to|lets return to) /,""),tokens=words(subject),ranked=p.archive.map((x,j)=>({x,j,n:tokens.filter(t=>words(x.q).includes(t)).length})).sort((a,b)=>b.n-a.n||b.j-a.j);
+  if(tokens.length&&ranked[0]?.n>=Math.min(2,tokens.length)){let x=ranked[0].x;return {text:x.text,pages:x.pages,links:x.links,next:x.next,kind:"Recap",context:{...x.context,role:p.role}};}
+ }
+ // Region-by-parish lookup from the existing official regional directory.
+ if(/\b(region|regional|rha|health administration|health authority)\b/.test(s)&&/\b(which|where|what|belongs|covers|falls)\b/.test(s)){
+ const groups=[["SERHA","South East Regional Health Authority",["kingston","st andrew","st catherine","st thomas"]],["NERHA","North East Regional Health Authority",["st ann","st mary","portland"]],["SRHA","Southern Regional Health Authority",["clarendon","manchester","st elizabeth"]],["WRHA","Western Regional Health Authority",["hanover","westmoreland","st james","trelawny"]]];
+ let z=s.replace(/\bsaint\b/g,"st"),matches=groups.flatMap(([abbr,name,parishes])=>parishes.filter(x=>(" "+z+" ").includes(" "+x+" ")).map(x=>[abbr,name,x]));let a=pick("institution:regions",p,q);if(matches.length===1&&a){let [abbr,name,parish]=matches[0];return {...a,text:parish.split(" ").map(x=>x[0].toUpperCase()+x.slice(1)).join(" ")+" falls under "+name+" ("+abbr+"). "+a.text};}}
+ if(/\b(difference|different|compare|distinction|versus|vs)\b/.test(s)&&!quantitative.test(s)){
+ let pair=null;
+ if(/\b(customer care|customer service|client affairs)\b/.test(s)&&/\b(research|monitoring|evaluation)\b/.test(s))pair=["institution:customer","institution:research"];
+ if(/\b(mohw|ministry)\b/.test(s)&&/\b(regional|rha)\b/.test(s))pair=["institution:ministry","institution:regions"];
+ if(pair){let a=pick(pair[0],p,q),b=pick(pair[1],p,q);if(a&&b)return {...a,text:"The distinction is in their functions:\n• "+a.text+"\n• "+b.text,links:[...new Map([...a.links,...b.links].map(l=>[l.url,l])).values()],kind:"Official Ministry information · checked 27 Nov 2026",next:["What does EEHCSD do?"]};}}
+ return null;
+}
+function fallback(q,p){
+ let s=norm(q);if(!s||privacy.test(s)||fresh.test(s)||quantitative.test(s))return null;
+ let r=rank(s,p),a=r[0],b=r[1];if(!a||a.score<.90||a.cover<.65)return null;
+ if(b&&a.score-b.score<.12&&a.n.topic!==b.n.topic)return null;
+ return fromNode(a.n,p,q);
+}
+function one(q,p){
+ let s=norm(q);
+ // Existing privacy and safety decisions remain authoritative.
+ let old=prior.answer(q,p);
+ if(old?.kind==="Scope and confidentiality"||old?.kind==="Evidence boundary"||privacy.test(s))return old;
+ let a=direct(q,p);if(a)return a;
+ if(old)return old;
+ return fallback(q,p);
+}
+function parts(q){let p=String(q).split(/\?\s*(?=\S)|;\s*(?=(?:what|how|why|who|when|which|show|compare|explain|give|tell|list)\b)|\s+(?:and also|also|and then|and)\s+(?=(?:what|how|why|who|when|which|show|compare|explain|give|tell|list)\b)/i).map(x=>x.trim()).filter(Boolean);return p.length>1&&p.length<=5?p:[q];}
+function merge(results,p,q){let pages=unique(results.flatMap(a=>a.pages||[])),links=[...new Map(results.flatMap(a=>a.links||[]).map(l=>[l.url,l])).values()];return store({text:results.map((a,i)=>(i+1)+". "+a.text).join("\n\n"),pages,links,kind:pages.length&&links.length?"Report and official Ministry information":"Multi-part answer",next:results.at(-1).next||[],context:results.at(-1).context||p},p,q);}
+function answer(q,p){
+ let ps=parts(q);
+ // Preserve proven purely analytical multi-question routes.
+ let existing=ps.length>1?prior.answer(q,p):null;
+ if(ps.length>1&&(ps.some(x=>institutional.test(norm(x)))||!existing)&&!privacy.test(norm(q))){
+ let rs=[],c=p;for(let x of ps){let a=one(x,c);if(!a){rs=[];break;}rs.push(a);c=store(a,c,x).context;}if(rs.length===ps.length)return merge(rs,p,q);}
+ return store(one(q,p),p,q);
+}
+async function search(q,p){
+ let a=answer(q,p);if(a)return a;
+ let ps=parts(q);if(ps.length>1&&!privacy.test(norm(q))){let rs=[],c=p;for(let x of ps){let b=one(x,c)||await prior.search(x,c);if(!b)break;rs.push(b);c=store(b,c,x).context;}if(rs.length===ps.length)return merge(rs,p,q);}
+ let b=await prior.search(q,p);
+ // When retrieval cannot answer, offer specific topics, not a random page or invented fact.
+ if(!privacy.test(norm(q))&&!fresh.test(norm(q))&&(!b||!evidenceReply(b))){let candidates=rank(q,p).slice(0,3).filter(x=>x.cover>=.55);if(candidates.length){let topics=unique(candidates.map(x=>x.n.heading));let next=unique(candidates.flatMap(x=>x.n.next||[])).slice(0,3);let pages=unique(candidates.flatMap(x=>x.n.pages||[])),links=[...new Map(candidates.flatMap(x=>x.n.links||[]).map(l=>[l.url,l])).values()];return store({text:"I found related material about "+topics.join("; ")+", but I cannot establish exactly which answer you need. Could you tell me which of these topics you mean?",pages,links,kind:"Possible source matches",next,context:p},p,q);}}
+ return store(b,p,q);
+}
 root.ServiceGuide={answer,search};
 })(window);

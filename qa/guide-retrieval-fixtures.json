@@ -1,0 +1,194 @@
+{
+  "tests": [
+    [
+      "What prompted the creation of the division?",
+      "Cabinet",
+      "links"
+    ],
+    [
+      "Which health region covers Hanover?",
+      "Western Regional Health Authority",
+      "links"
+    ],
+    [
+      "Which regional health authority covers St Mary?",
+      "NERHA",
+      "links"
+    ],
+    [
+      "What kind of work is done to reduce barriers to care?",
+      "non-clinical barriers",
+      "links"
+    ],
+    [
+      "What is the difference between MOHW and a regional health authority?",
+      "distinction",
+      "links"
+    ],
+    [
+      "Did staff have to disclose who they were?",
+      "anonymous",
+      "pages"
+    ],
+    [
+      "What did the researchers use to crunch the numbers?",
+      "SPSS 26",
+      "pages"
+    ],
+    [
+      "Where can I send praise for a nurse?",
+      "Client Care Connect",
+      "links"
+    ],
+    [
+      "Who can help with obstacles to accessing care?",
+      "referral pathways",
+      "links"
+    ],
+    [
+      "What is the difference between the 65% and 85% figures?",
+      "20 percentage points",
+      "pages"
+    ],
+    [
+      "Why does the report not prove anything?",
+      "causation",
+      "pages"
+    ],
+    [
+      "What is EEHCSD and who heads it?",
+      "Kimorley Humphrey",
+      "links"
+    ],
+    [
+      "What can you actually help me with?",
+      "three connected areas",
+      null
+    ],
+    [
+      "What is the difference between customer care and research monitoring?",
+      "evidence-informed",
+      "links"
+    ],
+    [
+      "Was there any attempt to avoid selection bias?",
+      "stratified",
+      "pages"
+    ],
+    [
+      "What was the data processing software?",
+      "SPSS 26",
+      "pages"
+    ],
+    [
+      "Who can I commend for good service?",
+      "Client Care Connect",
+      "links"
+    ],
+    [
+      "Does the division have a grievance mechanism?",
+      "Client Care Connect",
+      "links"
+    ],
+    [
+      "Did the study have any shortcomings?",
+      "recall bias",
+      "pages"
+    ],
+    [
+      "What is the government standard for customer satisfaction?",
+      "85%",
+      "pages"
+    ],
+    [
+      "Can you help me understand the source of the data?",
+      "structured survey",
+      "pages"
+    ],
+    [
+      "What was the study about and who conducted it?",
+      "Research, Monitoring and Evaluation Branch",
+      "pages"
+    ],
+    [
+      "What is EEHCSD and how can I contact them?",
+      "968-1620",
+      "links"
+    ],
+    [
+      "Which regional administration is St James part of?",
+      "Western Regional Health Authority",
+      "links"
+    ]
+  ],
+  "chains": [
+    [
+      [
+        "What is EEHCSD?",
+        "How do I know you're right?",
+        "Repeat that"
+      ],
+      [
+        "fairer",
+        "official Ministry sources",
+        "official Ministry sources"
+      ]
+    ],
+    [
+      [
+        "What is the Ministry of Health and Wellness?",
+        "What is its mission?",
+        "Show me your sources"
+      ],
+      [
+        "oversees",
+        "Healthy People",
+        "official Ministry sources"
+      ]
+    ],
+    [
+      [
+        "What is EEHCSD?",
+        "Who heads it?",
+        "Shorter"
+      ],
+      [
+        "fairer",
+        "Kimorley",
+        "Kimorley"
+      ]
+    ],
+    [
+      [
+        "What was the overall score?",
+        "Where did you get that?"
+      ],
+      [
+        "54%",
+        "report pages"
+      ]
+    ],
+    [
+      [
+        "Who conducted the study?",
+        "What are the differences between the two branches?"
+      ],
+      [
+        "Customer Service Branch",
+        "designing, administering and analysing"
+      ]
+    ],
+    [
+      [
+        "What is EEHCSD?",
+        "Who heads it?",
+        "Go back to EEHCSD"
+      ],
+      [
+        "fairer",
+        "Kimorley",
+        "fairer"
+      ]
+    ]
+  ]
+}
