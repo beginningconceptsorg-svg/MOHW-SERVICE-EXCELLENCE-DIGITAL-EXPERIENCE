@@ -22,6 +22,8 @@ jobs:
         run: node qa/guide-benchmark.mjs
       - name: Test everyday visitor questions
         run: node qa/guide-everyday.mjs
+      - name: Check report provenance and natural conversations
+        run: node qa/guide-context.mjs
       - name: Check for unexpected PDF files
         run: |
           if find . -type f -iname '*.pdf' -not -path './.git/*' -not -path './docs/Internal_CSAT_Report_2025_Final.pdf' | grep -q .; then

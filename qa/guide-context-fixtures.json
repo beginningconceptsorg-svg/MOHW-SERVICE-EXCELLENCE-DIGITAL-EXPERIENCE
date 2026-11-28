@@ -1,0 +1,304 @@
+{
+  "testCases": [
+    [
+      "Who did it?",
+      "Research, Monitoring and Evaluation Branch"
+    ],
+    [
+      "Who carried out this research?",
+      "Customer Service Branch"
+    ],
+    [
+      "Who wrote the report?",
+      "Shushan Stewart"
+    ],
+    [
+      "Who put this together?",
+      "Marvin Joseph"
+    ],
+    [
+      "Who was behind it?",
+      "EEHCSD"
+    ],
+    [
+      "Who was the author?",
+      "Customer Service Branch"
+    ],
+    [
+      "Who was it done by?",
+      "Customer Service Branch"
+    ],
+    [
+      "Who conducted this study?",
+      "EEHCSD"
+    ],
+    [
+      "Who were the research team members?",
+      "Deonne Taylor Wilson"
+    ],
+    [
+      "Who were the directors?",
+      "Marvin Joseph"
+    ],
+    [
+      "Who facilitated the focus groups?",
+      "Marion Scott-Thomas"
+    ],
+    [
+      "Who is Shennere Lindsay?",
+      "Research Officer"
+    ],
+    [
+      "Who was the moderator?",
+      "does not identify"
+    ],
+    [
+      "What did each branch do?",
+      "designing, administering and analysing"
+    ],
+    [
+      "Who coordinates implementation?",
+      "Heads of Division"
+    ],
+    [
+      "When was it done?",
+      "20 January"
+    ],
+    [
+      "When did they conduct it?",
+      "1 March"
+    ],
+    [
+      "How long did it take?",
+      "six weeks"
+    ],
+    [
+      "Where was it conducted?",
+      "corporate office"
+    ],
+    [
+      "Who took part?",
+      "229"
+    ],
+    [
+      "Who did they survey?",
+      "229"
+    ],
+    [
+      "How did they choose people?",
+      "119 supervisors"
+    ],
+    [
+      "How did they get the information?",
+      "structured survey"
+    ],
+    [
+      "Were they anonymous?",
+      "voluntary"
+    ],
+    [
+      "Did they have to take part?",
+      "voluntary"
+    ],
+    [
+      "Were all divisions included?",
+      "excluded"
+    ],
+    [
+      "What happens in phase two?",
+      "external customers"
+    ],
+    [
+      "What is phase one?",
+      "coordinate"
+    ],
+    [
+      "What was it called?",
+      "Internal Customer Satisfaction Study Report"
+    ],
+    [
+      "Can we trust this study?",
+      "recall bias"
+    ],
+    [
+      "Where did 85% come from?",
+      "31 percentage points"
+    ],
+    [
+      "Can I download it?",
+      "74-page"
+    ],
+    [
+      "What questions did they ask?",
+      "questionnaire"
+    ],
+    [
+      "Will they do it again?",
+      "biennial"
+    ],
+    [
+      "Who funded it?",
+      "does not state"
+    ],
+    [
+      "How much did it cost?",
+      "does not state"
+    ],
+    [
+      "Has phase two started?",
+      "does not establish"
+    ],
+    [
+      "Who is to blame?",
+      "does not establish"
+    ],
+    [
+      "Who wrote this?",
+      "Customer Service Branch"
+    ],
+    [
+      "Who organised the study?",
+      "Customer Service Branch"
+    ],
+    [
+      "Who conducted the survey?",
+      "Research, Monitoring and Evaluation Branch"
+    ],
+    [
+      "What year was it done?",
+      "2025"
+    ],
+    [
+      "Where did it happen?",
+      "corporate office"
+    ],
+    [
+      "How did they do it?",
+      "structured survey"
+    ],
+    [
+      "Who were the respondents?",
+      "229"
+    ],
+    [
+      "Was it compulsory?",
+      "voluntary"
+    ],
+    [
+      "What was the official title?",
+      "Internal Customer Satisfaction Study Report"
+    ],
+    [
+      "Will they repeat it?",
+      "biennial"
+    ],
+    [
+      "What did they want to know?",
+      "85%"
+    ]
+  ],
+  "chains": [
+    [
+      [
+        "What was this study really about?",
+        "Who did it?",
+        "Who were they?",
+        "What were their roles?"
+      ],
+      [
+        "54%",
+        "Customer Service Branch",
+        "Nicone Lewis",
+        "designing, administering and analysing"
+      ]
+    ],
+    [
+      [
+        "Give me the big picture",
+        "Who did it?",
+        "When did they conduct it?",
+        "How long did it take?"
+      ],
+      [
+        "54%",
+        "Research, Monitoring and Evaluation Branch",
+        "2025",
+        "six weeks"
+      ]
+    ],
+    [
+      [
+        "Who took part?",
+        "How were they selected?",
+        "Were they anonymous?"
+      ],
+      [
+        "229",
+        "119 supervisors",
+        "voluntary"
+      ]
+    ],
+    [
+      [
+        "Who did the study?",
+        "Who facilitated the focus groups?",
+        "Who was the moderator?"
+      ],
+      [
+        "Customer Service Branch",
+        "Marion Scott-Thomas",
+        "does not identify"
+      ]
+    ],
+    [
+      [
+        "What was this study really about?",
+        "Who coordinates implementation?",
+        "What happens in phase two?"
+      ],
+      [
+        "54%",
+        "Heads of Division",
+        "external customers"
+      ]
+    ],
+    [
+      [
+        "Who took part?",
+        "Who were they?",
+        "Name them"
+      ],
+      [
+        "229",
+        "229",
+        "cannot identify"
+      ]
+    ],
+    [
+      [
+        "Who did it?",
+        "Who exactly?",
+        "Who is Nicone Lewis?"
+      ],
+      [
+        "Customer Service Branch",
+        "Nicone Lewis",
+        "Customer Service Monitoring and Evaluation Officer"
+      ]
+    ],
+    [
+      [
+        "What was this study really about?",
+        "Who did it?",
+        "What did they find out?",
+        "What happens next?"
+      ],
+      [
+        "54%",
+        "Research, Monitoring and Evaluation Branch",
+        "54%",
+        "65%"
+      ]
+    ]
+  ]
+}
