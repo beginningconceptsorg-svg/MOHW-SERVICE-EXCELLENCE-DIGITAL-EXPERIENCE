@@ -200,7 +200,7 @@ function getGuideVoice(){
  });
  return guideVoice;
 }
-function guideMicToggle(){if(guidePending)return;var v=getGuideVoice();if(v.active()){v.stop();return;}stopSpeech();var input=document.getElementById("askInput");if(input)input.value="";v.start({language:guideVoiceLanguage,autoSend:guideVoiceMode});}
+function guideMicToggle(){if(guidePending)return;var v=getGuideVoice();if(v.active()){v.stop();return;}stopSpeech();var input=document.getElementById("askInput");var previous=input?input.value:"";if(input)input.value="";if(!v.start({language:guideVoiceLanguage,autoSend:guideVoiceMode})&&input)input.value=previous;}
 function guideCancelMic(){if(guideVoice)guideVoice.cancel();}
 
 function guideFace(){return "<span class='guide-face' aria-hidden='true'><img src='./assets/video/guide-welcome-poster.jpg' alt=''/></span>";}
@@ -210,10 +210,10 @@ function guideLine(m){
 }
 function renderGuideConversation(){
  var root=document.getElementById("guideConversation");if(!root)return;
- var welcome={who:"guide",text:"Hello! I'm your Service Excellence Guide. What would you like to know about the 2025 study? Ask me about a result, a division, or what we can do to improve service."};
+ var welcome={who:"guide",text:"Hello! I'm your Service Excellence Guide. What would you like to know about the 2025 study? Ask me about a result, a division, or what we can do to improve service. You can type or tap the microphone."};
  root.innerHTML=guideLine(welcome)+guideMessages.map(guideLine).join("")+(guidePending?"<div class='guide-thinking' role='status'>Looking through the report…</div>":"");root.scrollTop=root.scrollHeight;
  var chips=document.getElementById("guideSuggestions"),last=guideMessages[guideMessages.length-1];
- var choices=last&&last.next&&last.next.length?last.next:["Give me the big picture","Compare divisions","What should improve?"];
+ var choices=last&&last.next&&last.next.length?last.next:["Give me the big picture","Compare divisions","Start a practice quiz","What can you do?"];
  if(chips)chips.innerHTML=choices.map(function(q){return "<button type='button' data-question='"+esc(q)+"'>"+esc(q)+"</button>";}).join("");
  var send=document.getElementById("guideSend");if(send)send.disabled=guidePending;var mic=document.getElementById("guideMic");if(mic)mic.disabled=guidePending;
 }
@@ -228,7 +228,7 @@ function openAsk(){
 async function answerQuestion(q,fromVoice){guideCancelMic();stopSpeech();
  q=String(q||"").trim().slice(0,600);if(!q||guidePending)return;
  var epoch=++guideGeneration;guideMessages.push({who:"visitor",text:q});
- var input=document.getElementById("askInput");if(input){input.value="";input.focus();}
+ var input=document.getElementById("askInput");if(input){input.value="";if(!fromVoice)input.focus();}
  guidePending=true;renderGuideConversation();
  var reply;
  try{reply=window.ServiceGuide.answer(q,guideContext)||await window.ServiceGuide.search(q,guideContext);}
@@ -239,7 +239,7 @@ async function answerQuestion(q,fromVoice){guideCancelMic();stopSpeech();
  if(guideMessages.length>80)guideMessages.splice(0,2);
  renderGuideConversation();if(fromVoice&&guideVoiceMode&&document.getElementById("askInput"))guideSpeak(String(epoch));
 }
-function guideSpeak(id){var m=guideMessages.find(function(x){return x.id===id;});if(!m)return;if(!("speechSynthesis" in window)){toast("Read aloud is not available on this device.");return;}stopSpeech();var u=new SpeechSynthesisUtterance(m.text);var voices=window.speechSynthesis.getVoices();u.voice=voices.find(function(v){return /^en-JM/i.test(v.lang);})||voices.find(function(v){return /^en-GB/i.test(v.lang);})||voices.find(function(v){return /^en/i.test(v.lang);})||null;u.lang=u.voice?u.voice.lang:"en-JM";u.rate=.95;window.speechSynthesis.speak(u);}
+function guideSpeak(id){guideCancelMic();var m=guideMessages.find(function(x){return x.id===id;});if(!m)return;if(!("speechSynthesis" in window)){toast("Read aloud is not available on this device.");return;}stopSpeech();var u=new SpeechSynthesisUtterance(m.text);var voices=window.speechSynthesis.getVoices();u.voice=voices.find(function(v){return /^en-JM/i.test(v.lang);})||voices.find(function(v){return /^en-GB/i.test(v.lang);})||voices.find(function(v){return /^en/i.test(v.lang);})||null;u.lang=u.voice?u.voice.lang:"en-JM";u.rate=.95;u.volume=state.muted?0:state.volume;window.speechSynthesis.speak(u);}
 function openSettings(){
  modal("<div class='eyebrow'>DISPLAY PREFERENCES</div><h2 id='dialogTitle'>Make this experience yours</h2><p>These settings affect the prototype interface on this device. They are not a substitute for accessibility testing.</p>"+
  "<label class='check-row'>Larger text<input type='checkbox' id='largeToggle' "+(state.settings.large?"checked":"")+"></label>"+
