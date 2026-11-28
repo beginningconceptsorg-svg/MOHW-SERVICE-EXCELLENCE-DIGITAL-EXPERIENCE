@@ -187,7 +187,8 @@ function closeModal(){guideCancelMic();modalRoot.innerHTML="";if(state.lastFocus
 function sourceOpen(page){state.pdfPage=Math.min(74,Math.max(1,page||1));if(state.route==="library"&&window.ServiceReader){window.ServiceReader.goTo(state.pdfPage);return;}location.hash="#/library";}
 var guideMessages=[],guideContext=null,guidePending=false,guideGeneration=0;
 
-var guideVoiceMode=false,guideVoiceLanguage="en-GB",guideVoice=null;
+var guideVoiceMode=false,guideVoiceLanguage="en-GB",guideVoice=null,guideSpeaker=null,guideVoiceURI="",guideRate=1.12,guidePitch=1.05;
+try{var gv=JSON.parse(localStorage.getItem("service-guide-voice")||"{}");guideVoiceURI=gv.uri||"";guideRate=Number(gv.rate)||1.12;}catch(e){}
 function guideVoiceStatus(text){var s=document.getElementById("guideVoiceStatus");if(s)s.textContent=text||"";}
 function getGuideVoice(){
  if(guideVoice)return guideVoice;
@@ -222,8 +223,8 @@ function openAsk(){
  "<div id='guideConversation' class='guide-conversation' role='log' aria-label='Guide conversation' aria-live='polite'></div>"+
  "<div id='guideSuggestions' class='guide-suggestions' aria-label='Suggested follow-up questions'></div>"+
  "<form id='askForm' class='guide-compose'><label for='askInput' class='mini-label'>ASK ME ANYTHING ABOUT THE STUDY</label><div class='guide-compose-row'><input id='askInput' type='text' required maxlength='600' autocomplete='off' placeholder='Type your question…'/><button id='guideMic' class='guide-mic' type='button' aria-label='Ask by voice' aria-pressed='false' title='Ask by voice'><svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><rect x='9' y='2' width='6' height='13' rx='3'/><path d='M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8'/></svg></button><button id='guideSend' class='btn btn-accent' type='submit' aria-label='Send question'>Send</button></div><div id='guideVoiceStatus' class='guide-voice-status' role='status' aria-live='polite'></div></form>"+
- "<div class='guide-voice-options'><label><input type='checkbox' id='guideVoiceMode' "+(guideVoiceMode?"checked":"")+"/> Voice conversation (auto-send and read aloud)</label><label for='guideVoiceLanguage'>Speech language <select id='guideVoiceLanguage'><option value='en-GB' "+(guideVoiceLanguage==='en-GB'?'selected':'')+">English (UK)</option><option value='en-JM' "+(guideVoiceLanguage==='en-JM'?'selected':'')+">English (Jamaica)</option><option value='en-US' "+(guideVoiceLanguage==='en-US'?'selected':'')+">English (US)</option></select></label></div><div class='guide-tools'><button type='button' id='guideClear'>New conversation</button><button type='button' id='guideStop'>Stop audio</button></div><p class='guide-privacy'>Report-based analysis and local PDF search. Not a live AI model. Please avoid personal or confidential information. Typed conversations stay in this browser session. Voice recognition may send audio to your browser's speech service; it is not stored by this app.</p>");
- renderGuideConversation();
+ "<div class='guide-voice-options'><label><input type='checkbox' id='guideVoiceMode' "+(guideVoiceMode?"checked":"")+"/> Voice conversation (auto-send and read aloud)</label><label for='guideVoiceLanguage'>Speech language <select id='guideVoiceLanguage'><option value='en-GB' "+(guideVoiceLanguage==='en-GB'?'selected':'')+">English (UK)</option><option value='en-JM' "+(guideVoiceLanguage==='en-JM'?'selected':'')+">English (Jamaica)</option><option value='en-US' "+(guideVoiceLanguage==='en-US'?'selected':'')+">English (US)</option></select></label></div><details class='guide-voice-settings'><summary>Voice settings</summary><label for='guideOutputVoice'>Speaking voice</label><select id='guideOutputVoice' aria-label='Speaking voice'><option value=''>Auto — best available English voice</option></select><label for='guideRate'>Speaking speed <span id='guideRateLabel'>"+guideRate.toFixed(2)+"×</span></label><input id='guideRate' type='range' min='0.85' max='1.40' step='0.05' value='"+guideRate+"'/><button type='button' id='guideVoicePreview' class='guide-preview'>▶ Preview voice</button><small>Voice quality depends on voices installed on this device. Choose the one you prefer.</small></details><div id='guideSpeechStatus' class='guide-voice-status' role='status'></div><div class='guide-tools'><button type='button' id='guideClear'>New conversation</button><button type='button' id='guideStop'>Stop audio</button></div><p class='guide-privacy'>Report-based analysis and local PDF search. Not a live AI model. Please avoid personal or confidential information. Typed conversations stay in this browser session. Voice recognition may send audio to your browser's speech service; it is not stored by this app.</p>");
+ guideRefreshVoices();renderGuideConversation();
 }
 async function answerQuestion(q,fromVoice){guideCancelMic();stopSpeech();
  q=String(q||"").trim().slice(0,600);if(!q||guidePending)return;
@@ -235,11 +236,26 @@ async function answerQuestion(q,fromVoice){guideCancelMic();stopSpeech();
  catch(e){reply={text:"I couldn't retrieve that answer. Please try again or open the original report.",pages:[1]};}
  if(epoch!==guideGeneration)return;
  guidePending=false;guideContext=reply.context||guideContext;
- guideMessages.push({who:"guide",text:reply.text,pages:reply.pages,next:reply.next,kind:reply.kind,id:String(epoch)});
+ guideMessages.push({who:"guide",text:reply.text,pages:reply.pages,next:reply.next,kind:reply.kind,spokenText:reply.spokenText,id:String(epoch)});
  if(guideMessages.length>80)guideMessages.splice(0,2);
- renderGuideConversation();if(fromVoice&&guideVoiceMode&&document.getElementById("askInput"))guideSpeak(String(epoch));
+ renderGuideConversation();if(fromVoice&&guideVoiceMode&&document.getElementById("askInput"))guideSpeak(String(epoch),true);
 }
-function guideSpeak(id){guideCancelMic();var m=guideMessages.find(function(x){return x.id===id;});if(!m)return;if(!("speechSynthesis" in window)){toast("Read aloud is not available on this device.");return;}stopSpeech();var u=new SpeechSynthesisUtterance(m.text);var voices=window.speechSynthesis.getVoices();u.voice=voices.find(function(v){return /^en-JM/i.test(v.lang);})||voices.find(function(v){return /^en-GB/i.test(v.lang);})||voices.find(function(v){return /^en/i.test(v.lang);})||null;u.lang=u.voice?u.voice.lang:"en-JM";u.rate=.95;u.volume=state.muted?0:state.volume;window.speechSynthesis.speak(u);}
+function guideRefreshVoices(){
+ var s=document.getElementById("guideOutputVoice");if(!s||!("speechSynthesis" in window))return;
+ var voices=window.GuideSpeech.ranked(window.speechSynthesis.getVoices());
+ s.innerHTML="<option value=''>Auto — best available English voice</option>"+voices.map(function(v){return "<option value='"+esc(v.voiceURI)+"'>"+esc(v.name+" ("+v.lang+")")+"</option>";}).join("");
+ s.value=voices.some(function(v){return v.voiceURI===guideVoiceURI;})?guideVoiceURI:"";
+}
+function guideSaveVoice(){try{localStorage.setItem("service-guide-voice",JSON.stringify({uri:guideVoiceURI,rate:guideRate}));}catch(e){}}
+function guideGetSpeaker(){
+ if(guideSpeaker)return guideSpeaker;if(!("speechSynthesis" in window)||!("SpeechSynthesisUtterance" in window))return null;
+ guideSpeaker=window.GuideSpeech.makePlayer({synth:window.speechSynthesis,Utterance:window.SpeechSynthesisUtterance,onState:function(s){var h=document.querySelector(".guide-dialog-head");if(h)h.classList.toggle("speaking",s==="speaking");var t=document.getElementById("guideSpeechStatus");if(t)t.textContent=s==="speaking"?"Speaking…":"";},onError:guideVoiceStatus});
+ return guideSpeaker;
+}
+function guidePlayText(text,brief,custom){var speaker=guideGetSpeaker();if(!speaker){guideVoiceStatus("Read aloud is not available on this device.");return;}guideCancelMic();stopSpeech();speaker.play(text,{voiceURI:guideVoiceURI,rate:guideRate,pitch:guidePitch,volume:state.muted?0:state.volume,brief:!!brief,custom:custom||""});}
+function guideSpeak(id,brief){var m=guideMessages.find(function(x){return x.id===id;});if(m)guidePlayText(m.text,brief,m.spokenText);}
+function guideVoicePreview(){guidePlayText("Hello! I'm your Service Excellence Guide. I'm here to help you make sense of the research and find practical ways to improve our service. What would you like to explore?",false);}
+if("speechSynthesis" in window&&window.speechSynthesis.addEventListener)window.speechSynthesis.addEventListener("voiceschanged",guideRefreshVoices);
 function openSettings(){
  modal("<div class='eyebrow'>DISPLAY PREFERENCES</div><h2 id='dialogTitle'>Make this experience yours</h2><p>These settings affect the prototype interface on this device. They are not a substitute for accessibility testing.</p>"+
  "<label class='check-row'>Larger text<input type='checkbox' id='largeToggle' "+(state.settings.large?"checked":"")+"></label>"+
@@ -265,7 +281,7 @@ function installInstructions(){
 function welcomeSpeech(){
  return "Hello, and welcome to Service Excellence in Action. At the Ministry of Health and Wellness, good service begins with how we support one another. Our 2025 Internal Customer Satisfaction Study reports an overall satisfaction score of 54 percent. In this experience, you can explore the five service dimensions, understand the themes staff shared, and review proposals for service improvement. The recommendations are not yet verified achievements. Let us turn research into meaningful action.";
 }
-function stopSpeech(){if("speechSynthesis" in window)window.speechSynthesis.cancel();state.reading=false;var p=document.querySelector(".guide-narration-portrait");if(p)p.classList.remove("speaking");}
+function stopSpeech(){if(guideSpeaker)guideSpeaker.stop();else if("speechSynthesis" in window)window.speechSynthesis.cancel();state.reading=false;var p=document.querySelector(".guide-narration-portrait");if(p)p.classList.remove("speaking");}
 function narrate(){
  if(!("speechSynthesis" in window)){toast("Narration is not supported in this browser. The introduction remains available as text.");return;}
  stopSpeech();
@@ -340,6 +356,7 @@ modalRoot.addEventListener("click",function(e){
  if(e.target.id==="modalBackdrop" || b && (b.id==="closeDialog"||b.hasAttribute("data-close"))){stopSpeech();closeModal();return;}
  if(!b)return;
  if(b.hasAttribute("data-page")){stopSpeech();closeModal();sourceOpen(Number(b.getAttribute("data-page")));return;}
+ if(b.id==="guideVoicePreview"){guideVoicePreview();return;}
  if(b.id==="guideMic"){guideMicToggle();return;}
  if(b.id==="guideClear"){guideCancelMic();guideGeneration++;guidePending=false;guideMessages=[];guideContext=null;stopSpeech();renderGuideConversation();document.getElementById("askInput").focus();return;}
  if(b.id==="guideStop"){stopSpeech();return;}
@@ -356,8 +373,8 @@ modalRoot.addEventListener("click",function(e){
  if(b.id==="speechMute"){state.muted=!state.muted;stopSpeech();b.textContent=state.muted?"Unmute narration":"Mute narration";toast(state.muted?"Narration muted.":"Narration unmuted.");return;}
  if(b.id==="downloadQR"){var src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=12&data="+encodeURIComponent(document.getElementById("shareLink").value);fetch(src).then(function(res){if(!res.ok)throw Error("QR image unavailable");return res.blob();}).then(function(blob){var u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download="service-excellence-qr.png";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},1000);toast("QR image download requested.");}).catch(function(){toast("QR download requires an internet connection. Open or save the displayed image instead.");});return;}
 });
-modalRoot.addEventListener("input",function(e){if(e.target.id==="speechVolume")state.volume=Number(e.target.value);});
-modalRoot.addEventListener("change",function(e){if(e.target.id==="guideVoiceMode")guideVoiceMode=e.target.checked;if(e.target.id==="guideVoiceLanguage")guideVoiceLanguage=e.target.value;});
+modalRoot.addEventListener("input",function(e){if(e.target.id==="guideRate"){guideRate=Number(e.target.value);var l=document.getElementById("guideRateLabel");if(l)l.textContent=guideRate.toFixed(2)+"×";guideSaveVoice();}if(e.target.id==="speechVolume")state.volume=Number(e.target.value);});
+modalRoot.addEventListener("change",function(e){if(e.target.id==="guideVoiceMode")guideVoiceMode=e.target.checked;if(e.target.id==="guideVoiceLanguage")guideVoiceLanguage=e.target.value;if(e.target.id==="guideOutputVoice"){guideVoiceURI=e.target.value;guideSaveVoice();}});
 modalRoot.addEventListener("submit",function(e){if(e.target.id==="askForm"){e.preventDefault();answerQuestion(document.getElementById("askInput").value);}});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){if(modalRoot.innerHTML){stopSpeech();closeModal();}else closeNav();}if(e.key==="Tab"&&modalRoot.innerHTML){var focusable=modalRoot.querySelectorAll("button:not([disabled]),input:not([disabled]),select:not([disabled]),a[href]");if(focusable.length){var first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}}});
 document.getElementById("menuToggle").addEventListener("click",function(){var n=document.getElementById("sideRail");n.classList.toggle("open");this.setAttribute("aria-expanded",n.classList.contains("open")?"true":"false");});

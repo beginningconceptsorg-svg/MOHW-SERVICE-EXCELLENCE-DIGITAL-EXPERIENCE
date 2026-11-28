@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import vm from "node:vm";
 
-for(const name of ["src/app.js","src/guide.js","src/guide-voice.js","src/data.js","src/reader.js","sw.js"]){
+for(const name of ["src/app.js","src/guide.js","src/guide-voice.js","src/guide-speech.js","src/data.js","src/reader.js","sw.js"]){
  new vm.Script(fs.readFileSync(name,"utf8"),{filename:name});
  console.log("Syntax passed:",name);
 }
@@ -64,7 +64,7 @@ assert(g.answer("What are the targets?",action.context).text.includes("20%"));
 assert(g.answer("What is the score for finance communication?").text.includes("33%"));
 assert(g.answer("Open PDF page 70").pages.includes(70));
 assert.equal(g.answer("unrelated obscure question"),null);
-assert(html.includes("guide-welcome-poster.jpg")&&html.includes("guide.js?v=21"));
+assert(html.includes("guide-welcome-poster.jpg")&&html.includes("guide.js?v=22"));
 console.log("PASS: guide grounding, comparisons, follow-ups, source links and portrait launcher");
 
 const finance=g.answer("Tell me about Finance and Accounts");
@@ -95,7 +95,7 @@ assert.equal(sent[0],"What was the score");assert(!ctl.active());
 assert(ctl.start({autoSend:false}));fake.onresult({results:[{0:{transcript:"Hello"},isFinal:true}]});fake.onend();assert.equal(events.at(-1),"review");assert.equal(sent.length,1);
 assert(ctl.start());ctl.cancel();assert(!ctl.active());assert.equal(sent.length,1);
 assert(ctl.start());fake.onerror({error:"not-allowed"});fake.onend();assert(errors.at(-1).includes("denied"));
-assert(reader.includes("guideMic")&&reader.includes("guideVoiceMode")&&html.includes("guide-voice.js?v=21"));
+assert(reader.includes("guideMic")&&reader.includes("guideVoiceMode")&&html.includes("guide-voice.js?v=22"));
 console.log("PASS: speech adapter, cancellation, transcript review and voice mode");
 
 for(const [q,e] of [["What were the study objectives?","three objectives"],["What was HRMD's CSAT score?","36%"],["What was the sample size for NPHL?","89"],["What is the communciation score?","59%"],["What were the positive findings?","71%"],["What were the comments by division?","Corporate Services: 49 / 5 / 44"],["What is the difference between survey and focus groups?","complement"]]) assert(g.answer(q)?.text.includes(e),q);
@@ -106,3 +106,18 @@ let c2=g.answer("Tell me about Corporate Services",c1).context;
 assert(g.answer("Return to the previous division",c2).text.includes("28%"));
 const quiz=g.answer("Start a practice quiz");const right=g.answer("B",quiz.context);assert(g.answer("Next question",right.context).text.includes("Question 2"));
 assert(errors.at(-1).includes("denied"));
+
+for(const [q,e] of [["Rank the service dimensions","59%"],["Top 3 divisions","ties included"],["Which division had the highest communication score?","74%"],["What are the targets for each dimension?","12 points"],["Show the recommendations by year","FY 2026/2027"],["What would you prioritise?","44%"],["What is service excellence?","respectful support"],["We keep losing files. How can we prevent this?","approved records system"],["What can we do when salary payments are delayed?","Payment and administrative turnaround"],["What is the combined score for Corporate Services and Finance?","42.6%"],["How many ratings were not favourable?","522"],["How many divisions scored between 45% and 60%?","6 of 8"],["Compare Finance and Corporate Services on quality","14 percentage points"]]) assert(g.answer(q)?.text.toLowerCase().includes(e.toLowerCase()),q);
+for(const [first,q,e] of [["What is the communication score for Finance?","What about Corporate Services?","53%"],["We keep losing files. How can we prevent this?","How should we measure improvement?","missing records"],["How do we deal with staff who never respond to emails?","What should I say?","Thank you for raising"],["What can we do when salary payments are delayed?","Who should lead this?","Heads of Division/Branch"]]) assert(g.answer(q,g.answer(first)?.context)?.text.toLowerCase().includes(e.toLowerCase()),first+" -> "+q);
+
+vm.runInNewContext(fs.readFileSync("src/guide-speech.js","utf8"),sandbox);
+const speech=sandbox.window.GuideSpeech;
+const voices=[{name:"David",lang:"en-GB",voiceURI:"d"},{name:"Sonia Natural",lang:"en-GB",voiceURI:"s"},{name:"Generic",lang:"en-JM",voiceURI:"j"}];
+assert.equal(speech.choose(voices).voiceURI,"s");assert.equal(speech.choose(voices,"j").voiceURI,"j");
+assert(speech.verbalize("CSAT was 54%; 611/1133 ratings.").includes("54 percent"));
+assert(speech.verbalize("611/1133").includes("611 out of 1133"));
+assert(speech.spoken("A long answer. "+("Detailed explanation. ".repeat(35)),{brief:true}).includes("full details"));
+let spoken=[],status=[];class U{constructor(text){this.text=text;}}
+const player=speech.makePlayer({synth:{getVoices:()=>voices,cancel:()=>{},speak:u=>spoken.push(u)},Utterance:U,onState:s=>status.push(s)});
+player.play("Hello. This is a voice test.",{rate:1.2});assert.equal(spoken[0].voice.voiceURI,"s");assert.equal(spoken[0].rate,1.2);player.stop();assert(!player.active());
+assert(reader.includes("guideOutputVoice")&&reader.includes("guideVoicePreview")&&html.includes("guide-speech.js?v=22"));

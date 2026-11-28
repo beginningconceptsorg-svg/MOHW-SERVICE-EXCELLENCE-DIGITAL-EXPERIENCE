@@ -1,6 +1,6 @@
 /* Same-origin, aggregate-only shell caching. Does not cache uploaded reports or third-party QR images. */
-const CACHE="service-excellence-shell-v21";
-const SHELL=["./","./index.html","./src/styles.css?v=16","./src/data.js","./src/app.js?v=21","./src/guide.js?v=21","./src/guide-voice.js?v=21","./src/guide.css?v=21","./src/reader.js","./src/reader.css","./assets/guide.svg","./assets/guide-portrait.svg","./assets/icon.svg","./assets/icon-192.png","./assets/icon-512.png","./assets/mohw-official-logo.png","./assets/mohw-official-icon-192.png","./assets/mohw-official-icon-512.png","./assets/service-excellence-banner.png" ,"./assets/video/guide-welcome-poster.jpg","./manifest.webmanifest"];
+const CACHE="service-excellence-shell-v22";
+const SHELL=["./","./index.html","./src/styles.css?v=16","./src/data.js","./src/app.js?v=22","./src/guide.js?v=22","./src/guide-voice.js?v=22","./src/guide-speech.js?v=22","./src/guide.css?v=22","./src/reader.js","./src/reader.css","./assets/guide.svg","./assets/guide-portrait.svg","./assets/icon.svg","./assets/icon-192.png","./assets/icon-512.png","./assets/mohw-official-logo.png","./assets/mohw-official-icon-192.png","./assets/mohw-official-icon-512.png","./assets/service-excellence-banner.png" ,"./assets/video/guide-welcome-poster.jpg","./manifest.webmanifest"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE&&key.startsWith("service-excellence-shell-")).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
 self.addEventListener("fetch",event=>{const req=event.request;
