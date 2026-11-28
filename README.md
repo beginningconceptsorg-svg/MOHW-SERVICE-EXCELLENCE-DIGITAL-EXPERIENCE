@@ -79,3 +79,7 @@ The headset-wearing woman on the study cover is the continuity character for the
 The production continuity guide and proposed first five episodes are documented in [Character and Video Guide](docs/CHARACTER_AND_VIDEO_GUIDE.md). The optimised portrait inside the app is not an HD source master. The authorised original report is embedded; no additional confidential interview records are included.
 
 All development and commits take place directly on `main`. Earlier branches are historical snapshots only. Official Ministry launch remains subject to institutional clearance.
+
+## Ella — AI framework pilot
+
+See [implementation and deployment gates](docs/ELLA_AI_FRAMEWORK.md). Ella uses a tenant-specific manifest, contextual local intelligence and allowlisted page navigation. The cloud adapter is disabled. The report is now present in the repository; the earlier exclusion statement requires a distribution approval review.

@@ -187,9 +187,8 @@ function closeModal(){guideCancelMic();modalRoot.innerHTML="";if(state.lastFocus
 function sourceOpen(page){state.pdfPage=Math.min(74,Math.max(1,page||1));if(state.route==="library"&&window.ServiceReader){window.ServiceReader.goTo(state.pdfPage);return;}location.hash="#/library";}
 var guideMessages=[],guideContext=null,guidePending=false,guideGeneration=0;
 var guideAI=null;
-function getGuideAI(){if(!guideAI)guideAI=window.GuideAuto.create({engine:window.ServiceGuide,catalogue:window.GuideCatalogue||[]});return guideAI;}
-function guideAIStart(){getGuideAI().enableSmallModel();guideAIStatus();}
-function guideAIStatus(){var b=document.getElementById("guideAIStart");if(b&&guideAI){var s=guideAI.status().semantic;b.disabled=s!=="off";b.textContent=s==="ready"?"Enhanced search ready":s==="loading"?"Preparing enhanced search…":"Enable enhanced search";}}
+function getGuideAI(){if(!guideAI){var base=window.GuideAuto.create({engine:window.ServiceGuide,catalogue:window.GuideCatalogue||[]});guideAI=window.BCAmbassador.create({engine:window.ServiceGuide,base:base,catalogue:window.GuideCatalogue||[]});}return guideAI;}
+
 var guideVoiceMode=true,guideVoiceLanguage="en-GB",guideVoice=null,guideSpeaker=null,guideVoiceURI="",guideRate=1.12,guidePitch=1.05;
 try{var gv=JSON.parse(localStorage.getItem("service-guide-voice")||"{}");guideVoiceURI=gv.uri||"";guideRate=Number(gv.rate)||1.12;}catch(e){}
 function guideVoiceStatus(text){var s=document.getElementById("guideVoiceStatus");if(s)s.textContent=text||"";}
@@ -210,25 +209,25 @@ function guideCancelMic(){if(guideVoice)guideVoice.cancel();}
 function guideFace(){return "<span class='guide-face' aria-hidden='true'><img src='./assets/video/guide-welcome-poster.jpg' alt=''/></span>";}
 function guideLine(m){
  var guide=m.who==="guide";
- return "<div class='guide-line "+(guide?"from-guide":"from-visitor")+"'>"+(guide?guideFace():"")+"<div class='guide-bubble'>"+(guide&&m.kind&&m.kind!=="Conversation"?"<div class='guide-evidence-kind'>"+esc(m.kind)+"</div>":"")+"<p>"+esc(m.text)+"</p>"+(guide?(m.pages||[]).map(function(p){return source(p,"Open report · PDF p. "+p);}).join(" ")+(m.links||[]).filter(function(l){return /^https:\/\//i.test(l.url);}).map(function(l){return "<a class='guide-external-source' href='"+esc(l.url)+"' target='_blank' rel='noopener noreferrer'>"+esc(l.label)+" ↗</a>";}).join(" ")+(m.id?"<div class='guide-tools'><button type='button' data-guide-speak='"+m.id+"'>▶ Listen</button><button type='button' data-guide-copy='"+m.id+"'>Copy</button></div>":""):"")+"</div></div>";
+ return "<div class='guide-line "+(guide?"from-guide":"from-visitor")+"'>"+(guide?guideFace():"")+"<div class='guide-bubble'>"+(guide&&m.kind&&m.kind!=="Conversation"?"<div class='guide-evidence-kind'>"+esc(m.kind)+"</div>":"")+"<p>"+esc(m.text)+"</p>"+(guide?(m.pages||[]).map(function(p){return source(p,"Open report · PDF p. "+p);}).join(" ")+(m.links||[]).filter(function(l){return /^https:\/\//i.test(l.url);}).map(function(l){return "<a class='guide-external-source' href='"+esc(l.url)+"' target='_blank' rel='noopener noreferrer'>"+esc(l.label)+" ↗</a>";}).join(" ")+(m.actions||[]).filter(function(a){return Object.prototype.hasOwnProperty.call(window.AmbassadorConfig.routes,a.route);}).map(function(a){return "<button type='button' class='guide-route-action' data-guide-route='"+esc(a.route)+"'>"+esc(a.label)+" ↗</button>";}).join(" ")+(m.id?"<div class='guide-tools'><button type='button' data-guide-speak='"+m.id+"'>▶ Listen</button><button type='button' data-guide-copy='"+m.id+"'>Copy</button></div>":""):"")+"</div></div>";
 }
 function renderGuideConversation(){
  var root=document.getElementById("guideConversation");if(!root)return;
- var welcome={who:"guide",text:"Hello! I'm your Service Excellence Guide. What would you like to know about the 2025 study, EEHCSD or the Ministry? Ask me about a result, a division, or what we can do to improve service. You can type or tap the microphone."};
+ var welcome={who:"guide",text:"Hello! I’m Ella, your Service Excellence Guide. Ask me about the study, EEHCSD, the Ministry, or how to use this experience. You can type or speak to me."};
  root.innerHTML=guideLine(welcome)+guideMessages.map(guideLine).join("")+(guidePending?"<div class='guide-thinking' role='status'>Looking through verified information…</div>":"");root.scrollTop=root.scrollHeight;
  var chips=document.getElementById("guideSuggestions"),last=guideMessages[guideMessages.length-1];
- var choices=last&&last.next&&last.next.length?last.next:["Give me the big picture","Compare divisions","Start a practice quiz","What can you do?"];
+ var choices=last&&last.next&&last.next.length?last.next:["What was this study about?","Who conducted it?","What can I do here?"];
  if(chips)chips.innerHTML=choices.map(function(q){return "<button type='button' data-question='"+esc(q)+"'>"+esc(q)+"</button>";}).join("");
  var send=document.getElementById("guideSend");if(send)send.disabled=guidePending;var mic=document.getElementById("guideMic");if(mic)mic.disabled=guidePending;
 }
 function openAsk(){
- guideCancelMic();modal("<div class='guide-dialog-head'>"+guideFace()+"<div><div class='eyebrow'>YOUR DIGITAL COMPANION</div><h2 id='dialogTitle'>Service Excellence Guide</h2><span class='guide-status'><i aria-hidden='true'></i> <span id='guideModeStatus'>Ready to help</span></span></div></div>"+
+ guideCancelMic();modal("<div class='guide-dialog-head'>"+guideFace()+"<div><div class='eyebrow'>YOUR DIGITAL COMPANION</div><h2 id='dialogTitle'>Ella <span class='ella-subtitle'>· Service Excellence Guide</span></h2><span class='guide-status'><i aria-hidden='true'></i> <span id='guideModeStatus'>Ready to help</span></span></div></div>"+
  "<div id='guideConversation' class='guide-conversation' role='log' aria-label='Guide conversation' aria-live='polite'></div>"+
  "<div id='guideSuggestions' class='guide-suggestions' aria-label='Suggested follow-up questions'></div>"+
  "<form id='askForm' class='guide-compose'><label for='askInput' class='mini-label'>ASK A QUESTION</label><div class='guide-compose-row'><input id='askInput' type='text' required maxlength='600' autocomplete='off' placeholder='Type your question…'/><button id='guideMic' class='guide-mic' type='button' aria-label='Ask by voice' aria-pressed='false' title='Ask by voice'><svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><rect x='9' y='2' width='6' height='13' rx='3'/><path d='M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8'/></svg></button><button id='guideSend' class='btn btn-accent' type='submit' aria-label='Send question'>Send</button></div><div id='guideVoiceStatus' class='guide-voice-status' role='status' aria-live='polite'></div></form>"+
- "<div class='guide-bottom-bar'><button type='button' id='guideClear'>New chat</button><button type='button' id='guideStop'>Stop audio</button><details class='guide-voice-settings'><summary>Settings</summary><label><input type='checkbox' id='guideVoiceMode' "+(guideVoiceMode?"checked":"")+"/> Speak answers to voice questions</label><label for='guideVoiceLanguage'>Speech language <select id='guideVoiceLanguage'><option value='en-GB' "+(guideVoiceLanguage==='en-GB'?'selected':'')+">English (UK)</option><option value='en-JM' "+(guideVoiceLanguage==='en-JM'?'selected':'')+">English (Jamaica)</option><option value='en-US' "+(guideVoiceLanguage==='en-US'?'selected':'')+">English (US)</option></select></label><label for='guideOutputVoice'>Speaking voice</label><select id='guideOutputVoice' aria-label='Speaking voice'><option value=''>Auto — best available voice</option></select><label for='guideRate'>Speaking speed <span id='guideRateLabel'>"+guideRate.toFixed(2)+"×</span></label><input id='guideRate' type='range' min='0.85' max='1.40' step='0.05' value='"+guideRate+"'/><button type='button' id='guideVoicePreview' class='guide-preview'>Preview voice</button><hr/><small>Intelligence is selected automatically. Enhanced search may download about 23 MB of model weights plus runtime on detected Wi-Fi/Ethernet. On other connections you may enable it manually.</small><button type='button' id='guideAIStart' class='guide-preview'>Enable enhanced search</button><small>On-device processing; no paid API. Voice recognition may use your browser's speech service.</small></details></div><div id='guideSpeechStatus' class='guide-voice-status' role='status'></div><p class='guide-privacy'>Based on the 2025 report and dated Ministry sources. Avoid confidential information.</p>");
+ "<div class='guide-bottom-bar'><button type='button' id='guideClear'>New chat</button><button type='button' id='guideStop'>Stop audio</button><details class='guide-voice-settings'><summary>Settings</summary><label><input type='checkbox' id='guideVoiceMode' "+(guideVoiceMode?"checked":"")+"/> Speak answers to voice questions</label><label for='guideVoiceLanguage'>Speech language <select id='guideVoiceLanguage'><option value='en-GB' "+(guideVoiceLanguage==='en-GB'?'selected':'')+">English (UK)</option><option value='en-JM' "+(guideVoiceLanguage==='en-JM'?'selected':'')+">English (Jamaica)</option><option value='en-US' "+(guideVoiceLanguage==='en-US'?'selected':'')+">English (US)</option></select></label><label for='guideOutputVoice'>Speaking voice</label><select id='guideOutputVoice' aria-label='Speaking voice'><option value=''>Auto — best available voice</option></select><label for='guideRate'>Speaking speed <span id='guideRateLabel'>"+guideRate.toFixed(2)+"×</span></label><input id='guideRate' type='range' min='0.85' max='1.40' step='0.05' value='"+guideRate+"'/><button type='button' id='guideVoicePreview' class='guide-preview'>Preview voice</button><small>Voice recognition may use your browser's speech service. Avoid confidential information.</small></details></div><div id='guideSpeechStatus' class='guide-voice-status' role='status'></div><p class='guide-privacy'>Based on the 2025 report and dated Ministry sources. Avoid confidential information.</p>");
 
- guideRefreshVoices();renderGuideConversation();try{getGuideAI().prepare();guideAIStatus();}catch(e){}
+ guideRefreshVoices();renderGuideConversation();try{getGuideAI().prepare();}catch(e){}
 }
 async function answerQuestion(q,fromVoice){guideCancelMic();stopSpeech();
  q=String(q||"").trim().slice(0,600);if(!q||guidePending)return;
@@ -240,9 +239,9 @@ async function answerQuestion(q,fromVoice){guideCancelMic();stopSpeech();
  catch(e){reply={text:"I couldn't retrieve that answer. Please try again or open the original report.",pages:[1]};}
  if(epoch!==guideGeneration)return;
  guidePending=false;guideContext=reply.context||guideContext;
- guideMessages.push({who:"guide",text:reply.text,pages:reply.pages,links:reply.links,next:reply.next,kind:reply.kind,spokenText:reply.spokenText,id:String(epoch)});
+ guideMessages.push({who:"guide",text:reply.text,pages:reply.pages,links:reply.links,actions:reply.actions,next:reply.next,kind:reply.kind,spokenText:reply.spokenText,id:String(epoch)});
  if(guideMessages.length>80)guideMessages.splice(0,2);
- guideAIStatus();renderGuideConversation();if(fromVoice&&guideVoiceMode&&document.getElementById("askInput"))guideSpeak(String(epoch),true);
+ renderGuideConversation();if(fromVoice&&guideVoiceMode&&document.getElementById("askInput"))guideSpeak(String(epoch),true);
 }
 function guideRefreshVoices(){
  var s=document.getElementById("guideOutputVoice");if(!s||!("speechSynthesis" in window))return;
@@ -258,7 +257,7 @@ function guideGetSpeaker(){
 }
 function guidePlayText(text,brief,custom){var speaker=guideGetSpeaker();if(!speaker){guideVoiceStatus("Read aloud is not available on this device.");return;}guideCancelMic();stopSpeech();speaker.play(text,{voiceURI:guideVoiceURI,rate:guideRate,pitch:guidePitch,volume:state.muted?0:state.volume,brief:!!brief,custom:custom||""});}
 function guideSpeak(id,brief){var m=guideMessages.find(function(x){return x.id===id;});if(m)guidePlayText(m.text,brief,m.spokenText);}
-function guideVoicePreview(){guidePlayText("Hello! I'm your Service Excellence Guide. I'm here to help you make sense of the research and find practical ways to improve our service. What would you like to explore?",false);}
+function guideVoicePreview(){guidePlayText("Hello! I'm Ella, your Service Excellence Guide. I'm here to help you make sense of the research and find practical ways to improve our service. What would you like to explore?",false);}
 if("speechSynthesis" in window&&window.speechSynthesis.addEventListener)window.speechSynthesis.addEventListener("voiceschanged",guideRefreshVoices);
 function openSettings(){
  modal("<div class='eyebrow'>DISPLAY PREFERENCES</div><h2 id='dialogTitle'>Make this experience yours</h2><p>These settings affect the prototype interface on this device. They are not a substitute for accessibility testing.</p>"+
@@ -362,9 +361,10 @@ modalRoot.addEventListener("click",function(e){
  if(b.hasAttribute("data-page")){stopSpeech();closeModal();sourceOpen(Number(b.getAttribute("data-page")));return;}
  if(b.id==="guideVoicePreview"){guideVoicePreview();return;}
  if(b.id==="guideMic"){guideMicToggle();return;}
- if(b.id==="guideAIStart"){guideAIStart();return;} if(b.id==="guideClear"){guideCancelMic();guideGeneration++;guidePending=false;guideMessages=[];guideContext=null;stopSpeech();renderGuideConversation();document.getElementById("askInput").focus();return;}
+ if(b.id==="guideClear"){guideCancelMic();guideGeneration++;guidePending=false;guideMessages=[];guideContext=null;stopSpeech();renderGuideConversation();document.getElementById("askInput").focus();return;}
  if(b.id==="guideStop"){stopSpeech();return;}
  if(b.hasAttribute("data-guide-speak")){guideSpeak(b.getAttribute("data-guide-speak"));return;}
+ if(b.hasAttribute("data-guide-route")){var route=b.getAttribute("data-guide-route");if(Object.prototype.hasOwnProperty.call(window.AmbassadorConfig.routes,route)){stopSpeech();closeModal();location.hash="#/"+route;}return;}
  if(b.hasAttribute("data-guide-copy")){var m=guideMessages.find(function(x){return x.id===b.getAttribute("data-guide-copy");});if(m&&navigator.clipboard){navigator.clipboard.writeText(m.text).then(function(){toast("Answer copied.");}).catch(function(){toast("Select the answer text to copy it.");});}else toast("Select the answer text to copy it.");return;}
  if(b.hasAttribute("data-question")){answerQuestion(b.getAttribute("data-question"));return;}
  if(b.id==="savePrefs"){state.settings.large=document.getElementById("largeToggle").checked;state.settings.contrast=document.getElementById("contrastToggle").checked;state.settings.motion=document.getElementById("motionToggle").checked;applyPrefs();try{localStorage.setItem("service-excellence-display",JSON.stringify(state.settings));}catch(_e){}closeModal();toast("Your display preferences were saved on this device.");return;}

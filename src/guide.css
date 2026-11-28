@@ -78,3 +78,5 @@
 .guide-voice-status:empty{display:none}
 .guide-privacy{flex:none;line-height:1.35;margin:6px 0 0!important;color:#536e72}
 @media(max-width:600px){.modal:has(.guide-conversation){height:calc(100dvh - 12px);max-height:calc(100dvh - 12px)}.guide-dialog-head{margin-bottom:8px}.guide-suggestions{margin:5px 0}.guide-bottom-bar{gap:5px}}
+
+.ella-subtitle{font-size:.68em;font-weight:550;color:#32666c}.guide-route-action{display:inline-flex;align-items:center;margin:4px 3px 2px 0;padding:8px 10px;border:1px solid #8dbfb6;border-radius:9px;color:#135a54;background:#eaf7f2;font:inherit;font-size:.84rem;font-weight:650;cursor:pointer;min-height:40px}.guide-route-action:focus-visible{outline:3px solid #d4a64a;outline-offset:2px}.guide-bubble p{white-space:pre-wrap}
