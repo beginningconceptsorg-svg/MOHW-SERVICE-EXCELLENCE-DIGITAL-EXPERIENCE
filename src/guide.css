@@ -62,3 +62,19 @@
 .guide-ai-buttons button:disabled{opacity:.5;cursor:default}
 #guideAIStatus{font-weight:650;margin:4px 0;overflow-wrap:anywhere}
 .guide-ai-settings small{font-size:.68rem;line-height:1.3;display:block}
+
+/* Conversation-first layout. */
+.modal:has(.guide-conversation){width:min(100%,520px);height:min(780px,calc(100dvh - 40px));max-height:calc(100dvh - 40px)}
+.guide-conversation{height:auto;min-height:100px;flex:1 1 0;overflow-y:auto}
+.guide-suggestions{flex:0 0 auto;min-height:36px;margin:8px 0}
+.guide-compose{flex:none;margin-bottom:0}
+.guide-bottom-bar{display:flex;align-items:flex-start;gap:7px;flex-wrap:wrap;margin-top:5px;flex:none}
+.guide-bottom-bar>button,.guide-bottom-bar summary{border:1px solid #d4e6e0;border-radius:8px;background:#f6fbf8;color:#165a51;padding:6px 9px;font:inherit;font-size:.74rem;cursor:pointer}
+.guide-bottom-bar .guide-voice-settings{margin:0;padding:0;border:0;max-height:none;overflow:visible;flex:0 0 auto}
+.guide-bottom-bar .guide-voice-settings[open]{flex:1 1 100%;padding:7px 9px;max-height:min(32dvh,240px);overflow:auto;border:1px solid #d7e7df}
+.guide-bottom-bar .guide-voice-settings[open] summary{margin-bottom:4px}
+.guide-bottom-bar .guide-voice-settings label input[type=checkbox]{width:16px;margin:0 6px 0 0;accent-color:#146c69}
+.guide-bottom-bar .guide-voice-settings hr{border:0;border-top:1px solid #d7e7df;margin:7px 0}
+.guide-voice-status:empty{display:none}
+.guide-privacy{flex:none;line-height:1.35;margin:6px 0 0!important;color:#536e72}
+@media(max-width:600px){.modal:has(.guide-conversation){height:calc(100dvh - 12px);max-height:calc(100dvh - 12px)}.guide-dialog-head{margin-bottom:8px}.guide-suggestions{margin:5px 0}.guide-bottom-bar{gap:5px}}

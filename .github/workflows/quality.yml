@@ -30,6 +30,8 @@ jobs:
         run: node qa/guide-retrieval.mjs
       - name: Test hybrid routing and model lifecycle
         run: node qa/guide-hybrid.mjs
+      - name: Test automatic intelligence and constrained network fallback
+        run: node qa/guide-auto.mjs
       - name: Check for unexpected PDF files
         run: |
           if find . -type f -iname '*.pdf' -not -path './.git/*' -not -path './docs/Internal_CSAT_Report_2025_Final.pdf' | grep -q .; then
